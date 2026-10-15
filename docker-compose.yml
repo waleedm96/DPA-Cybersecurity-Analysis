@@ -1,0 +1,17 @@
+services:
+  spark:
+    image: quay.io/jupyter/pyspark-notebook:c9ecde976a5f
+    container_name: dpa-spark
+    ports:
+      - "127.0.0.1:8888:8888"  # JupyterLab, local computer only
+      - "127.0.0.1:4040:4040"  # Spark UI while a Spark job is running
+    environment:
+      JUPYTER_TOKEN: "dpa-local-token-change-me"
+      # Expose Spark's bundled Python libraries to Python scripts and Jupyter.
+      # These paths match the pinned image; no extra pip installation is needed.
+      PYTHONPATH: "/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.9.9-src.zip"
+    command: ["start-notebook.py", "--ServerApp.root_dir=/home/jovyan/work"]
+    volumes:
+      - ./:/home/jovyan/work
+    mem_limit: 8g
+    cpus: 2.0

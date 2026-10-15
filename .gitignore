@@ -1,0 +1,16 @@
+# Dataset files and large output tables should never be committed.
+/data/*
+!data/.gitkeep
+!data/README.md
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+*.log
+.env
+
+# Local data, Spark outputs, and reports
+data/raw/
+data/parquet/
+data/cleaned/
+reports/
+.ipynb_checkpoints/
