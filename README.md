@@ -15,9 +15,10 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 - Optional download: download missing datasets and extract the traffic ZIP.
 - Step 1: compare headers, inspect small traffic samples and the IANA registry.
 - Step 2: define explicit column types and check that the headers match.
+- Step 3: read the traffic sample and IANA CSV with Spark, write Parquet, and verify the read-back.
 
-The notebook uses only the actual dataset folders. It does not yet perform
-CSV-to-Parquet ingestion, cleaning, joins, or the final research analysis.
+The notebook uses the actual datasets. Traffic ingestion is limited to the
+5,000 inspected records; cleaning, joins, and the final research analysis remain pending.
 
 ## Run the notebook
 
@@ -33,18 +34,21 @@ Open the notebook and run its cells from top to bottom. Keep
 
 You can also use your own Jupyter environment. Step 1 uses ordinary Python;
 Step 2 requires PySpark installed in that kernel and does not start Spark.
+Step 3 also needs Java and a working Spark runtime.
 
 ## Data and outputs
 
 - `data/CSECICIDS2018_improved/`: the 10 traffic CSV files.
 - `data/Service and port name/`: the IANA CSV; the existing `(3).csv` filename is accepted.
 - `reports/inspection/`: the inspection summary and header checks.
+- `data/intermediate/traffic_sample.csv`: the small CSV used for the ingestion test.
+- `data/parquet/sample/`: the verified traffic-sample and IANA Parquet tables.
 
 For downloading instructions, read [data/README.md](data/README.md).
 The original datasets are preserved. Inspection sample counts are not the
 full dataset's attack distribution.
 
-Next is Step 3: test reading a small sample and writing typed Parquet.
+Next is Step 4: inspect data quality before choosing cleaning rules.
 
 To stop the Docker environment:
 
