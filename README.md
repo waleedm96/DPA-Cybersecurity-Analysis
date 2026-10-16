@@ -16,11 +16,13 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 - Step 1: compare headers, inspect small traffic samples and the IANA registry.
 - Step 2: define explicit column types and check that the headers match.
 - Step 3: read the traffic sample and IANA CSV with Spark, write Parquet, and verify the read-back.
+- Step 4: ingest all original files, clean traffic and IANA, and save a measured cleaning audit.
 
-The notebook uses the actual datasets. Traffic ingestion is limited to the
-5,000 inspected records; cleaning, joins, and the final research analysis remain pending.
+Steps 1–3 use 5,000 inspected traffic records to test ingestion. Step 4 reads
+all ten original CSVs, writes typed raw Parquet, and cleans the complete traffic
+and IANA tables. Joins and the final research analysis remain pending.
 
-Steps 1–3 use the original CSVs in `data/CSECICIDS2018_original/`.
+All traffic-processing steps use `data/CSECICIDS2018_original/`.
 Nine files have 80 columns; 20 February has 84. Each layout has an explicit
 schema, and Spark combines them by column name. The four extra fields are
 null for files that do not supply them. The improved release is kept separately
@@ -51,12 +53,17 @@ Step 3 also needs Java and a working Spark runtime.
 
 The notebook generates small CSVs under `data/intermediate/original/` and
 verified Parquet tables under `data/parquet/original/sample/`.
+Step 4 writes full typed inputs under `data/parquet/original/raw/`, cleaned
+tables under `data/parquet/original/cleaned/`, and row counts with reasons in
+`reports/cleaning/original/cleaning_audit.csv`. Each cleaning rule is explained
+in the notebook before its code.
 
 For downloading instructions, read [data/README.md](data/README.md).
 The original datasets are preserved. Inspection sample counts are not the
 full dataset's attack distribution.
 
-Next is Step 4: inspect the original data's quality before choosing cleaning rules.
+Next: join the cleaned traffic and service lookup, answer the research questions,
+and compare CSV and Parquet query times.
 
 To stop the Docker environment:
 
