@@ -1,17 +1,30 @@
 services:
-  spark:
-    image: quay.io/jupyter/pyspark-notebook:c9ecde976a5f
-    container_name: dpa-spark
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: sentinel-jupyter
+
+    user: root
+
+    shm_size: "2gb"
+
     ports:
-      - "127.0.0.1:8888:8888"  # JupyterLab, local computer only
-      - "127.0.0.1:4040:4040"  # Spark UI while a Spark job is running
-    environment:
-      JUPYTER_TOKEN: "dpa-local-token-change-me"
-      # Expose Spark's bundled Python libraries to Python scripts and Jupyter.
-      # These paths match the pinned image; no extra pip installation is needed.
-      PYTHONPATH: "/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.9.9-src.zip"
-    command: ["start-notebook.py", "--ServerApp.root_dir=/home/jovyan/work"]
+      - "8888:8888"
+
     volumes:
-      - ./:/home/jovyan/work
-    mem_limit: 8g
-    cpus: 2.0
+      - .:/home/jovyan/dpa_volume
+
+    working_dir: /home/jovyan/dpa_volume
+
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_TOKEN: "sentinel-local"
+      PYTHONUNBUFFERED: "1"
+      CHOWN_HOME: "yes"
+      CHOWN_HOME_OPTS: "-R"
+      GRANT_SUDO: "yes"
+      SPARK_CONF_DIR: "/home/jovyan/dpa_volume/config"
+
+    restart: unless-stopped

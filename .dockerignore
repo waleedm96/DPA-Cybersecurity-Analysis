@@ -1,0 +1,21 @@
+
+.git
+.git/**
+
+# pyvenv
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# local env
+.env
+.env.*
+!.env.example
+
+data/raw/
+data/processed/

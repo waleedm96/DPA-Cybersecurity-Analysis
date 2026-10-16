@@ -2,8 +2,6 @@
 /data/*
 !data/.gitkeep
 !data/README.md
-__pycache__/
-.ipynb_checkpoints/
 .vscode/
 *.log
 .env
@@ -13,4 +11,13 @@ data/raw/
 data/parquet/
 data/cleaned/
 reports/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
 .ipynb_checkpoints/
+
+# Local configuration and secrets
+.env
