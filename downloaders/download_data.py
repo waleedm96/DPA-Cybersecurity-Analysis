@@ -6,7 +6,7 @@ from shutil import copyfileobj
 from urllib.request import urlretrieve
 from zipfile import BadZipFile, ZipFile
 
-DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+data_folder = Path(__file__).resolve().parents[1] / "data"
 TRAFFIC_BASE_URL = (
     "https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/"
     "Processed%20Traffic%20Data%20for%20ML%20Algorithms/"
@@ -37,20 +37,20 @@ def download(url, destination):
         print(f"Already exists: {destination.name}", flush=True)
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
-    temporary = destination.with_name(destination.name + ".part")
+    partial_file = destination.with_name(destination.name + ".part")
     print(f"Downloading: {destination.name}", flush=True)
-    urlretrieve(url, str(temporary))
-    temporary.replace(destination)
+    urlretrieve(url, str(partial_file))
+    partial_file.replace(destination)
 
 
-def prepare_traffic(data_dir):
-    folder = data_dir / "CSECICIDS2018_original"
+def download_traffic(data_folder):
+    folder = data_folder / "Dataset Network Traffic"
     for filename in TRAFFIC_FILES:
         download(TRAFFIC_BASE_URL + filename, folder / filename)
 
 
-def prepare_improved(data_dir):
-    folder = data_dir / "CSECICIDS2018_improved"
+def download_improved(data_folder):
+    folder = data_folder / "Dataset Network Traffic improved"
     # This release uses shorter filenames and the spelling "Tuesday".
     filenames = [name.replace("_TrafficForML_CICFlowMeter", "").replace("Thuesday", "Tuesday")
                  for name in TRAFFIC_FILES]
@@ -58,7 +58,7 @@ def prepare_improved(data_dir):
            for name in filenames):
         print("Improved dataset already exists.", flush=True)
         return
-    archive = data_dir / "downloads" / "CSECICIDS2018_improved.zip"
+    archive = data_folder / "downloads" / "CSECICIDS2018_improved.zip"
     download(IMPROVED_URL, archive)
     folder.mkdir(parents=True, exist_ok=True)
     with ZipFile(archive) as source:
@@ -67,25 +67,21 @@ def prepare_improved(data_dir):
             if destination.is_file() and destination.stat().st_size > 0:
                 continue
             print(f"Extracting: {name}", flush=True)
-            temporary = destination.with_name(name + ".part")
-            with source.open(name) as csv_file, temporary.open("wb") as output:
+            partial_file = destination.with_name(name + ".part")
+            with source.open(name) as csv_file, partial_file.open("wb") as output:
                 copyfileobj(csv_file, output, length=1024 * 1024)
-            temporary.replace(destination)
+            partial_file.replace(destination)
 
 
-def prepare_iana(data_dir):
-    folder = data_dir / "Service and port name"
-    for path in sorted(folder.glob("service-names-port-numbers*.csv")):
-        if path.is_file() and path.stat().st_size > 0:
-            print(f"Already exists: {path.name}", flush=True)
-            return
-    download(IANA_URL, folder / "service-names-port-numbers.csv")
+def download_iana(data_folder):
+    file_path = data_folder / "Dataset Service and Port" / "service-names-port-numbers.csv"
+    download(IANA_URL, file_path)
 
 
 def main():
-    prepare_traffic(DATA_DIR)
-    prepare_improved(DATA_DIR)
-    prepare_iana(DATA_DIR)
+    download_traffic(data_folder)
+    download_improved(data_folder)
+    download_iana(data_folder)
     print("Download process finished.")
 
 

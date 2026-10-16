@@ -17,5 +17,6 @@ __pycache__/
 .env.*
 !.env.example
 
-data/raw/
-data/processed/
+# Data is mounted from the computer at runtime.
+data/
+reports/

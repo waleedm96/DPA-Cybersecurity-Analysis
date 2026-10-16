@@ -1,46 +1,39 @@
 # Project data
 
-Part 1 uses the original traffic files and IANA. We keep the improved release for later work.
-
 ```text
 data/
-  CSECICIDS2018_original/    # 10 original traffic CSVs, about 6.89 GB
-  Service and port name/    # IANA CSV
-  CSECICIDS2018_improved/    # Improved traffic CSVs, about 36.04 GB
+  Dataset Network Traffic/           # Original traffic used in Part 1
+  Dataset Service and Port/          # IANA registry
+  Dataset Network Traffic improved/  # Improved traffic for later work
+  samples/                           # Small CSV samples
+  parquet/
+    sample/                          # Sample ingestion test
+    raw/                             # Typed source tables
+    cleaned/                         # Cleaned traffic and IANA
+    enriched/traffic/                # Traffic with service names
 ```
 
 ## Download
 
-From the project folder containing `data/` and `downloaders/`, run:
+From the project folder, run:
 
 ```powershell
 python .\downloaders\download_data.py
 ```
 
-This downloads both traffic releases and IANA. It needs Python only. Allow about 55 GB of free space, including the improved dataset ZIP saved in `data/downloads/`.
+The script downloads both traffic releases and IANA. It needs Python only. Existing nonempty files are skipped. A failed download starts again when you rerun the script. Allow about 55 GB of free space for a fresh download, including the improved ZIP kept in `downloads/`.
 
-From a notebook opened in `notebooks/`, you can also run:
+From a notebook in `notebooks/`, you can also run:
 
 ```python
 %run ../downloaders/download_data.py
 ```
 
-To download only the original traffic files and IANA, set `DOWNLOAD_DATA = True` in the Volume notebook. Leave it `False` if the data is already there.
+The Volume notebook's `DOWNLOAD_DATA = True` downloads only original traffic and IANA. Leave it `False` if the data is already there.
 
-Existing nonempty CSVs are skipped. New files use `.part` until they finish downloading or extracting. If a download stops, run it again: the incomplete file starts again, and completed files are kept. The script also accepts the existing IANA filename ending in `(3).csv`.
+Original traffic filenames stay as provided by the source, including `Thuesday-20-02-2018...`. Nine files have 80 columns and 20 February has 84. We keep the source CSVs unchanged.
 
-The source spelling `Thuesday-20-02-2018...` is correct for the original download URL. Nine original files have 80 columns; this file has 84. The notebook handles both layouts.
-
-## Generated files
-
-The notebook saves samples in `intermediate/original/` and Parquet in `parquet/original/`:
-
-- `sample/`: the small ingestion test.
-- `raw/`: all source rows before cleaning.
-- `cleaned/`: the cleaned tables.
-- `enriched/traffic/`: cleaned traffic with IANA service names added in Step 5.
-
-Inspection reports are in `../reports/inspection/original/`. Cleaning counts and reasons are in `../reports/cleaning/original/cleaning_audit.csv`. Some IANA rows are excluded because our lookup uses individual TCP/UDP ports; this does not make those registry entries errors.
+Inspection reports are in `../reports/inspection/original/`. The cleaning log is `../reports/cleaning/original/cleaning_audit.csv`.
 
 ## Sources
 

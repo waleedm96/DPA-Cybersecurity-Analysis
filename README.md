@@ -19,7 +19,7 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 
 Each cleaning step has a reason before its code. We keep the source CSVs unchanged.
 
-Part 1 uses `data/CSECICIDS2018_original/`. Nine files have 80 columns and 20 February has 84. We use the matching schema for each file. The extra fields are null where a source file does not have them. The improved release is saved separately for later work.
+Part 1 uses `data/Dataset Network Traffic/`. Nine files have 80 columns and 20 February has 84. We use the matching schema for each file. The extra fields are null where a source file does not have them. The improved release is saved separately for later work.
 
 ## Run the notebook
 
@@ -46,17 +46,19 @@ See [data/README.md](data/README.md) for download instructions and source links.
 
 | Folder | What it contains |
 | --- | --- |
-| `data/CSECICIDS2018_original/` | Original traffic CSVs used in Part 1 |
-| `data/Service and port name/` | IANA CSV |
-| `data/CSECICIDS2018_improved/` | Improved release for later work |
-| `data/intermediate/original/` | Small traffic samples |
-| `data/parquet/original/sample/` | Parquet tables for the sample test |
-| `data/parquet/original/raw/` | All source data as typed Parquet |
-| `data/parquet/original/cleaned/` | Cleaned traffic and IANA tables |
-| `data/parquet/original/enriched/traffic/` | Traffic with IANA service names |
+| `data/Dataset Network Traffic/` | Original traffic CSVs used in Part 1 |
+| `data/Dataset Service and Port/` | IANA CSV |
+| `data/Dataset Network Traffic improved/` | Improved release for later work |
+| `data/samples/` | Small traffic samples |
+| `data/parquet/sample/` | Parquet tables for the sample test |
+| `data/parquet/raw/` | All source data as typed Parquet |
+| `data/parquet/cleaned/` | Cleaned traffic and IANA tables |
+| `data/parquet/enriched/traffic/` | Traffic with IANA service names |
 | `reports/inspection/original/` | Header checks and inspection summary |
 | `reports/cleaning/original/cleaning_audit.csv` | Row counts and reasons for each cleaning step |
 
 Step 5 checks that the join keeps the same row count and prints matched and unmatched traffic counts. A service name is a registered port association, not proof of the application.
+
+The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, and `final_traffic` for the saved table with service names.
 
 Next: research analysis and charts, then CSV and Parquet timing comparisons.

@@ -1,23 +1,19 @@
-# Dataset files and large output tables should never be committed.
+# Local datasets and generated results
 /data/*
-!data/.gitkeep
-!data/README.md
-.vscode/
-*.log
-.env
+!/data/.gitkeep
+!/data/README.md
+/reports/
 
-# Local data, Spark outputs, and reports
-data/raw/
-data/parquet/
-data/cleaned/
-reports/
-
-# Python
+# Python and Jupyter
 __pycache__/
 *.py[cod]
-
-# Jupyter
 .ipynb_checkpoints/
+.venv/
+venv/
 
-# Local configuration and secrets
+# Local settings
+.vscode/
 .env
+.env.*
+!.env.example
+*.log
