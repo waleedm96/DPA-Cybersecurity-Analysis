@@ -38,6 +38,7 @@ The notebook saves samples in `intermediate/original/` and Parquet in `parquet/o
 - `sample/`: the small ingestion test.
 - `raw/`: all source rows before cleaning.
 - `cleaned/`: the cleaned tables.
+- `enriched/traffic/`: cleaned traffic with IANA service names added in Step 5.
 
 Inspection reports are in `../reports/inspection/original/`. Cleaning counts and reasons are in `../reports/cleaning/original/cleaning_audit.csv`. Some IANA rows are excluded because our lookup uses individual TCP/UDP ports; this does not make those registry entries errors.
 

@@ -15,6 +15,7 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 2. Define explicit schemas for both datasets.
 3. Test CSV reading and Parquet saving with 5,000 traffic rows and the whole IANA file.
 4. Read all ten original traffic files, save typed Parquet, clean both datasets, and record the row counts.
+5. Join the cleaned traffic with IANA by destination port and protocol, keeping all traffic rows.
 
 Each cleaning step has a reason before its code. We keep the source CSVs unchanged.
 
@@ -28,7 +29,7 @@ Start Docker Desktop. From this project folder, run:
 docker compose up -d
 ```
 
-Open <http://127.0.0.1:8888/lab> with token `dpa-local-token-change-me`.
+Open <http://127.0.0.1:8888/lab> with token `sentinel-local`.
 Open the notebook and run the cells from top to bottom. Keep `DOWNLOAD_DATA = False` if the data is already there.
 
 You can also use your own Jupyter environment with PySpark and Java. Step 1 uses Python only.
@@ -52,7 +53,10 @@ See [data/README.md](data/README.md) for download instructions and source links.
 | `data/parquet/original/sample/` | Parquet tables for the sample test |
 | `data/parquet/original/raw/` | All source data as typed Parquet |
 | `data/parquet/original/cleaned/` | Cleaned traffic and IANA tables |
+| `data/parquet/original/enriched/traffic/` | Traffic with IANA service names |
 | `reports/inspection/original/` | Header checks and inspection summary |
 | `reports/cleaning/original/cleaning_audit.csv` | Row counts and reasons for each cleaning step |
 
-Next: IANA enrichment, research analysis and charts, then CSV and Parquet timing comparisons.
+Step 5 checks that the join keeps the same row count and prints matched and unmatched traffic counts. A service name is a registered port association, not proof of the application.
+
+Next: research analysis and charts, then CSV and Parquet timing comparisons.
