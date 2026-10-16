@@ -63,6 +63,6 @@ Step 5 checks that the join keeps the same row count and prints matched and unma
 
 The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, and `final_traffic` for the saved table with service names.
 
-Step 6 compares normal traffic with attacks and shows measurements, service coverage, and top ports for each label. It reuses one label summary and caches only three small result tables.
+Step 6 explains which research question each comparison answers. It compares averages and medians, shows the middle 50% of flow durations, and lists service coverage and top ports for each label. These are patterns in this dataset, not a tested attack detector.
 
 Next: charts, CSV and Parquet timing comparisons, and the final report.
