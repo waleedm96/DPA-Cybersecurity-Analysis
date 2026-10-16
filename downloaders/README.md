@@ -1,26 +1,30 @@
-﻿# Download the datasets
+# Download the datasets
 
-`download_data.py` downloads the two source datasets into the project's
-`data` folder and extracts the traffic ZIP. It uses Python's standard library.
+`download_data.py` downloads the original CSE-CIC-IDS2018 CSVs, the improved
+release, and the IANA registry using Python's standard library.
 
-In the Volume notebook, set `DOWNLOAD_DATA = True` and run the first code cell.
-Keep it `False` when the files are already present.
-
-With local Python, run from the inner project folder:
+Run from the inner project folder:
 
 ```powershell
 python .\downloaders\download_data.py
 ```
 
-Or use the existing Docker environment:
+Files are saved under:
 
-```powershell
-docker compose exec spark python /home/jovyan/work/downloaders/download_data.py
-```
+- `data/CSECICIDS2018_original/`
+- `data/CSECICIDS2018_improved/`
+- `data/Service and port name/`
 
-Allow at least 50 GiB free for a fresh download and extraction. The script
-preserves existing source CSVs. Interrupted downloads restart from the beginning
-when rerun; completed files are reused. The downloaded ZIP is retained under
-`data/downloads/`.
+Existing nonempty files are skipped. New downloads use `.part` files until
+complete. After an interruption, rerun the command; the incomplete file starts
+again from the beginning. Completed files are kept.
 
-See [data/README.md](../data/README.md) for the folder layout and official links.
+The improved release is downloaded as a ZIP under `data/downloads/` and then
+extracted. Allow about 55 GB free for both releases and the retained archive.
+**Part 1 uses the original CSVs and IANA.** The improved release is kept for later.
+
+In the Volume notebook, `DOWNLOAD_DATA = True` downloads only the original
+traffic CSVs and IANA. Running the script directly downloads both traffic
+releases and IANA. No extra Python packages are needed.
+
+See [data/README.md](../data/README.md) for the folder layout and source links.

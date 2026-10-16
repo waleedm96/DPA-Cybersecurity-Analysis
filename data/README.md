@@ -1,90 +1,65 @@
-# How to download the project datasets
+# Project datasets
 
-This folder holds the two source datasets for Part 1:
-
-- **Improved CSE-CIC-IDS2018:** 10 CSV files containing network traffic.
-- **IANA Service Names and Port Numbers Registry:** a CSV used to associate
-  destination ports and protocols with registered services.
-
-Use the script at [`../downloaders/download_data.py`](../downloaders/download_data.py)
-to download both datasets and extract the traffic archive automatically.
-It uses Python's standard library; no extra Python packages are required.
-Allow at least **50 GiB of free disk space** for a fresh download and extraction.
-
-## Option 1: from the Volume notebook
-
-Open `notebooks/DPA_Volume_Part1.ipynb`. In the first code cell, change:
-
-```python
-DOWNLOAD_DATA = True
+```text
+data/
+  CSECICIDS2018_original/     # Part 1: 10 original CSVs (about 6.89 GB)
+  Service and port name/     # IANA registry CSV
+  CSECICIDS2018_improved/     # Improved release for later work (about 36.04 GB)
+  README.md
 ```
 
-Run that cell with **Shift + Enter**. It downloads missing files into this
-folder without starting Spark processing. Leave the setting at `False` to skip
-downloading. This download cell does not require Docker or PySpark.
+## Download the data
 
-## Option 2: run the Python script directly
+The Python script downloads the original traffic CSVs from Amazon S3,
+downloads and extracts the improved-release ZIP, and downloads the IANA registry.
+It uses Python's standard library and works without Docker. Allow about 55 GB
+free for a fresh download of both releases, including the retained ZIP.
 
-With Python 3.9 or later available on your computer, open PowerShell in the
-**inner project folder** containing `data`, `downloaders`, and `notebooks`:
+From the inner project folder containing `data/` and `downloaders/`, run:
 
 ```powershell
 python .\downloaders\download_data.py
 ```
 
-If your terminal is in the **outer workspace folder**, use:
-
-```powershell
-python .\DPA-Volume-Part1-Project\downloaders\download_data.py
-```
-
-From a Jupyter notebook opened in the project's `notebooks` folder, you can
-also run the script in a code cell:
+From a notebook opened in `notebooks/`, you can also run:
 
 ```python
 %run ../downloaders/download_data.py
 ```
 
-## Option 3: use the configured Docker environment
+Or set `DOWNLOAD_DATA = True` in the Volume notebook's optional download cell.
+Leave it `False` when the files are already available.
+The notebook downloads only the original traffic CSVs and IANA; the standalone
+script downloads both traffic releases and IANA.
 
-Ensure Docker Desktop is running. From the outer workspace folder:
+Existing nonempty CSVs are skipped, including an IANA filename ending in `(3).csv`.
+A new download is saved as `.part` and renamed after it finishes. If it fails,
+rerun the script: that file restarts from the beginning and completed files are
+skipped. The source filename `Thuesday-20-02-2018...` is intentional.
 
-```powershell
-docker compose up -d
-docker compose exec spark python /home/jovyan/work/downloaders/download_data.py
-```
+Original CSVs go directly into `CSECICIDS2018_original/`. The improved ZIP is
+saved under `downloads/` and its CSVs are extracted into `CSECICIDS2018_improved/`.
+Existing extracted CSVs are kept, and interrupted extractions use `.part` files.
 
-## Expected files
+## Notebook status
 
-```text
-data/
-  README.md
-  CSECICIDS2018_improved/
-    ...10 traffic CSV files...
-  Service and port name/
-    service-names-port-numbers.csv
-  downloads/
-    CSECICIDS2018_improved.zip
-```
+Part 1 uses the original release and IANA. The original traffic files have
+80 columns, except 20 February with 84. The notebook defines both schemas and
+combines samples by column name. Extra fields are null where the source file
+does not supply them; no addresses are inferred.
 
-The existing filename `service-names-port-numbers (3).csv` is also accepted.
-The ZIP is retained for reuse. The `parquet/` folder contains generated Spark
-outputs, not downloaded source data.
+Generated samples are under `intermediate/original/`, Parquet tables under
+`parquet/original/sample/`, and inspection reports under
+`../reports/inspection/original/`.
 
-The script prints download and extraction messages. It preserves existing
-source CSVs and skips datasets that pass its basic checks. If interrupted,
-rerun the same command: incomplete downloads restart from the beginning, while
-completed CSVs are reused. Files ending in `.part` or `.extracting` are temporary
-files, not completed datasets.
+Step 4 reads all original CSVs and saves full typed inputs under
+`parquet/original/raw/` and cleaned tables under `parquet/original/cleaned/`.
+The cleaning audit is `../reports/cleaning/original/cleaning_audit.csv`.
+Its removal counts are sequential; registry lookup exclusions and service-alias
+aggregation are distinguished from invalid traffic data.
 
-A successful script run ends with:
+## Source links
 
-```text
-SUCCESS: datasets are available. No Spark processing was performed.
-```
-
-## Official sources
-
-- [Improved CSE-CIC-IDS2018 documentation](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html)
-- [Traffic ZIP archive directory](https://intrusion-detection.distrinet-research.be/CNS2022/Datasets/)
+- [Original traffic CSV directory](https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%20Traffic%20Data%20for%20ML%20Algorithms/)
+- [Improved-release documentation and download](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html)
 - [IANA registry CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv)
