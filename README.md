@@ -12,7 +12,7 @@ CSE-CIC-IDS2018 and the IANA service-name and port-number registry.
 
 The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 
-- Optional download: download both traffic releases and the IANA registry.
+- Optional notebook download: download the original traffic CSVs and the IANA registry.
 - Step 1: compare headers, inspect small traffic samples and the IANA registry.
 - Step 2: define explicit column types and check that the headers match.
 - Step 3: read the traffic sample and IANA CSV with Spark, write Parquet, and verify the read-back.
