@@ -432,10 +432,10 @@ that are combined to answer the research question.
         & \textbf{Licence} \\
         \midrule
 
-        Improved CSE-CIC-IDS2018~\cite{dataset1}
-        & DistriNet KU~Leuven
+        Original CSE-CIC-IDS2018~\cite{dataset1}
+        & CSE / CIC (UNB)
         & CSV
-        & 33.6~GB
+        & 6.89~GB
         & CIC Open Licence \\
 
         IANA Port Registry~\cite{dataset2}
@@ -468,9 +468,8 @@ flows are further labelled by RFC\,6335 range: \emph{system}
 (49152--65535).
 
 \subsection{Why Apache Spark?}
-The uncompressed primary dataset is 33.6~GB, which exceeds what
-can be loaded into a single machine's memory as a Pandas
-dataframe. Spark's partitioned, lazy evaluation model processes
+The original traffic CSVs total approximately 6.89~GB.
+Spark's partitioned, lazy evaluation model processes
 the data in chunks, reading only the columns required for each
 query. The columnar Parquet format, combined with Spark's
 predicate pushdown, reduces the effective I/O to a small fraction
