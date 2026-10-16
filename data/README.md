@@ -50,7 +50,13 @@ does not supply them; no addresses are inferred.
 
 Generated samples are under `intermediate/original/`, Parquet tables under
 `parquet/original/sample/`, and inspection reports under
-`../reports/inspection/original/`. Full-data ingestion and cleaning are pending.
+`../reports/inspection/original/`.
+
+Step 4 reads all original CSVs and saves full typed inputs under
+`parquet/original/raw/` and cleaned tables under `parquet/original/cleaned/`.
+The cleaning audit is `../reports/cleaning/original/cleaning_audit.csv`.
+Its removal counts are sequential; registry lookup exclusions and service-alias
+aggregation are distinguished from invalid traffic data.
 
 ## Source links
 
