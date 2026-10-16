@@ -63,6 +63,6 @@ Step 5 checks that the join keeps the same row count and prints matched and unma
 
 The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, and `final_traffic` for the saved table with service names.
 
-Step 6 uses the full enriched table. It compares averages and approximate medians, shows service-match coverage, and ranks ports within each label.
+Step 6 compares normal traffic with attacks and shows measurements, service coverage, and top ports for each label. It reuses one label summary and caches only three small result tables.
 
 Next: charts, CSV and Parquet timing comparisons, and the final report.
