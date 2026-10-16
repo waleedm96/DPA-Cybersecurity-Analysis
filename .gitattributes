@@ -1,0 +1,4 @@
+* text=auto
+*.tex text eol=lf
+*.bib text eol=lf
+*.sty text eol=lf
