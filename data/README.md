@@ -29,6 +29,8 @@ From a notebook opened in `notebooks/`, you can also run:
 
 Or set `DOWNLOAD_DATA = True` in the Volume notebook's optional download cell.
 Leave it `False` when the files are already available.
+The notebook downloads only the original traffic CSVs and IANA; the standalone
+script downloads both traffic releases and IANA.
 
 Existing nonempty CSVs are skipped, including an IANA filename ending in `(3).csv`.
 A new download is saved as `.part` and renamed after it finishes. If it fails,

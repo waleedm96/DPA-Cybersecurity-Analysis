@@ -23,7 +23,8 @@ The improved release is downloaded as a ZIP under `data/downloads/` and then
 extracted. Allow about 55 GB free for both releases and the retained archive.
 **Part 1 uses the original CSVs and IANA.** The improved release is kept for later.
 
-In the Volume notebook, the optional `DOWNLOAD_DATA = True` cell also calls
-this downloader. No extra Python packages are needed.
+In the Volume notebook, `DOWNLOAD_DATA = True` downloads only the original
+traffic CSVs and IANA. Running the script directly downloads both traffic
+releases and IANA. No extra Python packages are needed.
 
 See [data/README.md](../data/README.md) for the folder layout and source links.
