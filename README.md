@@ -16,6 +16,7 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 3. Test CSV reading and Parquet saving with 5,000 traffic rows and the whole IANA file.
 4. Read all ten original traffic files, save typed Parquet, clean both datasets, and record the row counts.
 5. Join the cleaned traffic with IANA by destination port and protocol, keeping all traffic rows.
+6. Compare normal traffic and attacks, examine each label, and find its top ports and services.
 
 Each cleaning step has a reason before its code. We keep the source CSVs unchanged.
 
@@ -56,9 +57,12 @@ See [data/README.md](data/README.md) for download instructions and source links.
 | `data/parquet/enriched/traffic/` | Traffic with IANA service names |
 | `reports/inspection/original/` | Header checks and inspection summary |
 | `reports/cleaning/original/cleaning_audit.csv` | Row counts and reasons for each cleaning step |
+| `reports/analysis/` | Small research-result tables saved as CSV |
 
 Step 5 checks that the join keeps the same row count and prints matched and unmatched traffic counts. A service name is a registered port association, not proof of the application.
 
 The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, and `final_traffic` for the saved table with service names.
 
-Next: research analysis and charts, then CSV and Parquet timing comparisons.
+Step 6 uses the full enriched table. It compares averages and approximate medians, shows service-match coverage, and ranks ports within each label.
+
+Next: charts, CSV and Parquet timing comparisons, and the final report.
