@@ -2,6 +2,9 @@
 /data/*
 !/data/.gitkeep
 !/data/README.md
+!/data/subset/
+/data/subset/*
+!/data/subset/*.csv
 /reports/
 
 # Python and Jupyter

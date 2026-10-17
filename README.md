@@ -1,55 +1,45 @@
-# DPA - Part 1: Network Traffic Analysis
+# DPA - Network Traffic Analysis
 
-We use PySpark to analyse original CSE-CIC-IDS2018 traffic and join it with the IANA service and port registry.
-
-## Questions
+We use PySpark to clean CSE-CIC-IDS2018 traffic, join it with IANA service names, and answer:
 
 1. What traffic patterns distinguish normal activity from attacks?
 2. Which network services and traffic characteristics are associated with different attack categories?
 
 ## Run the project
 
-1. Install Docker Desktop and start it.
-2. Open a terminal in this folder, where `docker-compose.yml` is located.
-3. Download the data with Python if it is not already present:
-
-   ```powershell
-   python downloaders/download_data.py
-   ```
-
-4. Start Jupyter:
+1. Install and start Docker Desktop.
+2. Open a terminal in this folder, beside `docker-compose.yml`.
+3. Run:
 
    ```powershell
    docker compose up --build -d
    ```
 
-5. Open <http://127.0.0.1:8888/lab?token=sentinel-local>.
-6. Open `notebooks/DPA_Volume_Part1.ipynb` and run the cells from top to bottom. Leave `DOWNLOAD_DATA = False` when the data is already present. The optional notebook download cell can also download the Part 1 data.
+4. Open <http://127.0.0.1:8888/lab?token=sentinel-local>.
+5. Open `notebooks/DPA_Volume_Part1.ipynb`.
+6. Choose **Restart Kernel and Run All Cells**.
 
-To stop Jupyter, run `docker compose down`. Data and notebook changes stay in this folder.
+The notebook starts with:
 
-Without Docker, use Jupyter with Java and PySpark already installed, then install the plotting packages with `pip install -r requirements.txt`.
+```python
+USE_SUBSET = True
+DOWNLOAD_DATA = False
+```
 
-## Notebook steps
+This uses the included CSVs: about one million uncleaned traffic records and the full IANA file. No download is needed.
 
-1. Check file headers and small samples.
-2. Define the two traffic schemas and the IANA schema.
-3. Test CSV reading and typed Parquet with 5,000 sample traffic rows.
-4. Read all ten original files, clean both datasets, and record each cleaning count.
-5. Join traffic with IANA by destination port and protocol.
-6. Calculate full-data summaries with Spark.
-7. Plot the saved summaries.
+## Run the full dataset
 
-The source traffic is about 7 GB and contains over 16 million records. Spark processes the files in parallel and saves typed Parquet without loading the full traffic table into Python memory. The source CSVs are kept unchanged.
+In the first code cell, set `USE_SUBSET = False`. Set `DOWNLOAD_DATA = True` if the original files are not downloaded yet. The traffic CSVs need about 7 GB, plus space for Parquet and Spark temporary files.
 
-## Files and results
+After changing the settings, restart the kernel and run all cells.
 
-- `downloaders/download_data.py`: data download script. The improved release is optional and is not used in Part 1.
-- `data/README.md`: data sources, download options, licences, and folder names.
-- `data/parquet/`: sample, raw, cleaned, and enriched tables made by the notebook.
-- `reports/cleaning/original/cleaning_audit.csv`: removed and modified row counts with reasons.
-- `reports/analysis/`: small result tables for all 15 source labels.
-- `reports/charts/`: the four figures made in Step 7.
-- `latex_report/`: report files still to be completed by the group.
+## What the notebook does
 
-Once the result CSVs exist, the Step 7 cells can make the charts without rerunning Spark. Run the folder setup cell first.
+Check files, define schemas, test reading, clean both datasets, join IANA service names, then calculate and plot the results. Each cleaning step explains its reason and prints the rows removed or changed. Original CSVs stay unchanged.
+
+Results are saved in `reports/subset/` for subset mode and `reports/` for full mode: `cleaning/original/` has the cleaning log, `analysis/` has result tables, and `charts/` has the figures. Parquet tables are saved in `data/parquet/`.
+
+Use the subset to check the project quickly. It includes extra rare labels and dirty records, so use the full dataset for final research findings. See [data/README.md](data/README.md) for sources and folders.
+
+To stop Jupyter, run `docker compose down`.

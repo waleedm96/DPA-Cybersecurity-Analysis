@@ -1,37 +1,36 @@
 # Data
 
-Part 1 uses two datasets: the original CSE-CIC-IDS2018 traffic CSVs and the IANA service and port registry.
+## Included subset
 
-## Download
+`subset/` contains ten traffic CSVs with **1,003,840 uncleaned records** in total, plus `service and port subset.csv`, an unchanged copy of the full IANA registry (**14,536 records**).
 
-From the project folder:
+Each traffic file keeps its original columns. Rows were selected from all ten days using seed 42: 100,000 random rows per day, plus up to 100 examples per label and cleaning problem. No missing values or duplicates were invented. Extra rare and dirty records help test cleaning, but the subset proportions do not represent the full dataset.
+
+Use `USE_SUBSET = True` in the notebook. No download is needed.
+
+## Full data
+
+Set `USE_SUBSET = False` and `DOWNLOAD_DATA = True` in the notebook, then restart the kernel and run all cells. Or download first from the project folder:
 
 ```powershell
 python downloaders/download_data.py
 ```
 
-This downloads original traffic and IANA. Existing nonempty files are skipped. A failed download starts again when the script is rerun. The original traffic is about 7 GB; allow extra disk space for the generated Parquet tables and Spark temporary files.
-
-To also download the improved release, set `DOWNLOAD_IMPROVED = True` near the top of the script. Allow about 55 GB for both releases and the improved ZIP, before Parquet and temporary files. Part 1 does not use the improved files.
+The script downloads original traffic and IANA. Existing nonempty files are skipped. The original traffic CSVs need about 7 GB, plus space for generated tables.
 
 ## Folders
 
-| Folder | Contents |
-| --- | --- |
-| `Dataset Network Traffic/` | Ten original traffic CSVs used in Part 1 |
-| `Dataset Service and Port/` | IANA CSV |
-| `Dataset Network Traffic improved/` | Optional improved release for later work |
-| `downloads/` | Improved ZIP, if requested |
-| `samples/` | 500 rows per traffic file for the reading test |
-| `parquet/sample/` | Typed tables from the sample test |
-| `parquet/raw/` | All source rows as typed Parquet |
-| `parquet/cleaned/` | Cleaned traffic and IANA |
-| `parquet/enriched/traffic/` | Traffic with IANA service names |
+- `subset/`: CSVs included in Git for quick evaluation.
+- `Dataset Network Traffic/`: ten original traffic files.
+- `Dataset Service and Port/`: full IANA CSV.
+- `samples/`: 500 rows per traffic file for the reading test.
+- `parquet/`: tables created by the notebook; subset tables use `parquet/subset/`.
+- `Dataset Network Traffic improved/`: optional release, unused in Part 1. The downloader only fetches it if `DOWNLOAD_IMPROVED = True`.
 
-Nine original files have 80 columns; 20 February has 84. Filenames stay as provided, including `Thuesday-20-02-2018...`. Source CSVs are not changed by the notebook.
+Nine traffic files have 80 columns; 20 February has 84. Source CSVs are never edited by the notebook.
 
 ## Sources and licences
 
-- **Original CSE-CIC-IDS2018:** [dataset description and licence](https://www.unb.ca/cic/datasets/ids-2018.html), [AWS dataset page](https://registry.opendata.aws/cse-cic-ids2018/). The provider permits redistribution and requires a dataset citation and a link to the AWS page. The downloader uses the public AWS CSV objects.
-- **IANA registry:** [CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv), [licensing terms](https://www.iana.org/help/licensing-terms). The protocol registry data is covered by the CC0 1.0 dedication described there. The downloaded snapshot can change as IANA updates the registry.
-- **Optional improved release:** [provider documentation](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html). This is separate from the original data and is not part of the Part 1 analysis.
+- CSE-CIC-IDS2018: [dataset and licence](https://www.unb.ca/cic/datasets/ids-2018.html), [AWS dataset page](https://registry.opendata.aws/cse-cic-ids2018/). Cite the dataset and include the AWS link when redistributing it.
+- IANA: [service and port CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv), [licensing terms](https://www.iana.org/help/licensing-terms).
+- Optional improved release: [provider documentation](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html).
