@@ -42,6 +42,4 @@ Results are saved in `reports/subset/` for subset mode and `reports/` for full m
 
 Use the subset to check the project quickly. It includes extra rare labels and dirty records, so use the full dataset for final research findings. See [data/README.md](data/README.md) for sources and folders.
 
-The [report draft](latex_report/main.pdf) uses full-data results. Its [LaTeX source](latex_report/main.tex) and figures are in `latex_report/` for the group to review and edit.
-
 To stop Jupyter, run `docker compose down`.
