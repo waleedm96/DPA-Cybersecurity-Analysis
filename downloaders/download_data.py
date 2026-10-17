@@ -6,6 +6,7 @@ from shutil import copyfileobj
 from urllib.request import urlretrieve
 from zipfile import BadZipFile, ZipFile
 
+# Save downloads inside the project data folder.
 data_folder = Path(__file__).resolve().parents[1] / "data"
 DOWNLOAD_IMPROVED = False  # Part 1 only needs the original traffic and IANA.
 TRAFFIC_BASE_URL = (
@@ -40,12 +41,14 @@ def download(url, destination):
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial_file = destination.with_name(destination.name + ".part")
     print(f"Downloading: {destination.name}", flush=True)
+    # Use the final filename only after the download finishes.
     urlretrieve(url, str(partial_file))
     partial_file.replace(destination)
 
 
 def download_traffic(data_folder):
     folder = data_folder / "Dataset Network Traffic"
+    # Download the ten original traffic files one at a time.
     for filename in TRAFFIC_FILES:
         download(TRAFFIC_BASE_URL + filename, folder / filename)
 
@@ -69,6 +72,7 @@ def download_improved(data_folder):
                 continue
             print(f"Extracting: {name}", flush=True)
             partial_file = destination.with_name(name + ".part")
+            # Copy small chunks so the whole CSV is not kept in memory.
             with source.open(name) as csv_file, partial_file.open("wb") as output:
                 copyfileobj(csv_file, output, length=1024 * 1024)
             partial_file.replace(destination)

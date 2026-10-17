@@ -1,3 +1,6 @@
-matplotlib
+# These are the libraries we have used in the project.
+pyspark
 pandas
+matplotlib
 seaborn
+jupyterlab
