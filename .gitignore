@@ -6,6 +6,7 @@
 /data/subset/*
 !/data/subset/*.csv
 /reports/
+/latex_report/.build/
 
 # Python and Jupyter
 __pycache__/
