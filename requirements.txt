@@ -1,3 +1,4 @@
+# Libraries used with Spark and Jupyter supplied by the Docker image.
 numpy==1.24.4
 matplotlib==3.8.0
 pandas==2.0.3

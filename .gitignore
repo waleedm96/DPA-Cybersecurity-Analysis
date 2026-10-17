@@ -1,4 +1,4 @@
-# Local datasets and generated results
+# Source datasets and generated analysis results stay local.
 /data/*
 !/data/.gitkeep
 !/data/README.md
