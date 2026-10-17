@@ -1,3 +1,4 @@
+
 services:
   jupyter:
     build:
@@ -11,7 +12,7 @@ services:
     shm_size: "2gb"
 
     ports:
-      - "8888:8888"
+      - "127.0.0.1:8888:8888"
 
     volumes:
       - .:/home/jovyan/Dpa-Cybersecurity-Analysis
@@ -19,12 +20,12 @@ services:
     working_dir: /home/jovyan/Dpa-Cybersecurity-Analysis
 
     environment:
-      JUPYTER_ENABLE_LAB: "yes"
-      JUPYTER_TOKEN: "sentinel-local"
-      PYTHONUNBUFFERED: "1"
-      CHOWN_HOME: "yes"
-      CHOWN_HOME_OPTS: "-R"
-      GRANT_SUDO: "yes"
-      SPARK_CONF_DIR: "/home/jovyan/Dpa-Cybersecurity-Analysis/config"
+      JUPYTER_ENABLE_LAB: ${JUPYTER_ENABLE_LAB:-yes}
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-sentinel-local}
+      PYTHONUNBUFFERED: ${PYTHONUNBUFFERED:-1}
+      CHOWN_HOME: ${CHOWN_HOME:-yes}
+      CHOWN_HOME_OPTS: ${CHOWN_HOME_OPTS:--R}
+      GRANT_SUDO: ${GRANT_SUDO:-yes}
+      SPARK_CONF_DIR: /home/jovyan/Dpa-Cybersecurity-Analysis/config
 
     restart: unless-stopped

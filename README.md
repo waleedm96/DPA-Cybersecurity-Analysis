@@ -26,11 +26,23 @@ Part 1 uses `data/Dataset Network Traffic/`. Nine files have 80 columns and 20 F
 Start Docker Desktop. From this project folder, run:
 
 ```powershell
-docker compose up -d
+docker compose up -d --build
 ```
 
 Open <http://127.0.0.1:8888/lab> with token `sentinel-local`.
 Open the notebook and run the cells from top to bottom. Keep `DOWNLOAD_DATA = False` if the data is already there.
+
+Compose provides working defaults; optionally copy `.env.example` to `.env` and customize the Jupyter token. The project is mounted at `/home/jovyan/Dpa-Cybersecurity-Analysis`.
+
+Spark reads `config/spark-defaults.conf` through the container's `SPARK_CONF_DIR`. This file controls the local workers, 6 GB driver heap, and 48 shuffle partitions. Allocate enough RAM to Docker Desktop for the heap plus Python, Java overhead, and Jupyter. `shm_size` is not the container's RAM allocation. Restart the notebook kernel after changing Spark startup settings. Notebook startup uses these shared defaults.
+
+Verify the environment independently of the downloaded datasets:
+
+```powershell
+docker compose exec -T jupyter python scripts/test_spark.py
+```
+
+The smoke test checks configuration loading, Spark SQL, and a Parquet round trip using four synthetic records. It writes only `data/parquet/installation_test/`. The image pins Spark 3.5.0 and the plotting dependencies; do not install a second PySpark version over the bundled Spark distribution.
 
 You can also use your own Jupyter environment with PySpark and Java. Step 1 uses Python only.
 

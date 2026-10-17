@@ -1,120 +1,67 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-DATA_DIR="${PROJECT_ROOT}/data"
-DATASET1_DEST="${DATA_DIR}/raw/dataset_1"
-DATASET2_DEST="${DATA_DIR}/raw/dataset_2"
-
-S3_BUCKET="s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/"
-AWS_REGION="ca-central-1"
+TRAFFIC_DIR="${PROJECT_ROOT}/data/Dataset Network Traffic"
+IANA_DIR="${PROJECT_ROOT}/data/Dataset Service and Port"
+TRAFFIC_URL="https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%20Traffic%20Data%20for%20ML%20Algorithms"
 IANA_URL="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv"
-IANA_FILE="${DATASET2_DEST}/service-names-port-numbers.csv"
-
-echo "============================================"
-echo "   CIC-IDS2018 + IANA Dataset Downloader"
-echo "============================================"
-echo
-echo "Project root: ${PROJECT_ROOT}"
-echo
-
-# Ensure the existing project data directory is present.
-if [[ ! -d "${DATA_DIR}" ]]; then
-  echo "ERROR: Existing project data directory not found:" >&2
-  echo "  ${DATA_DIR}" >&2
-  echo "Keep this script inside the project's downloaders/ directory." >&2
-  exit 1
-fi
-
-# Check required tools.
-if ! command -v aws >/dev/null 2>&1; then
-  echo "ERROR: AWS CLI was not found." >&2
-  echo "Install AWS CLI v2: https://aws.amazon.com/cli/" >&2
-  exit 1
-fi
 
 if ! command -v curl >/dev/null 2>&1; then
-  echo "ERROR: curl was not found. Install curl and try again." >&2
+  echo "ERROR: curl is required." >&2
   exit 1
 fi
+mkdir -p "${TRAFFIC_DIR}" "${IANA_DIR}"
 
-mkdir -p "${DATASET1_DEST}" "${DATASET2_DEST}"
+# A nonempty final file is considered complete. Failed transfers only affect .part.
+partial_file=""
+trap 'if [[ -n "$partial_file" ]]; then rm -f -- "$partial_file"; fi' EXIT
 
-echo "AWS CLI version:"
-aws --version
-echo
-
-dataset1_failed=0
-dataset2_failed=0
-
-echo "============================================"
-echo "Downloading Dataset 1: CIC-IDS2018 processed CSVs"
-echo "============================================"
-echo "Destination: ${DATASET1_DEST}"
-echo
-
-if aws s3 sync \
-  --no-sign-request \
-  --region "${AWS_REGION}" \
-  "${S3_BUCKET}" \
-  "${DATASET1_DEST}/"; then
-  echo "Dataset 1 sync completed."
-else
-  echo "ERROR: Dataset 1 download failed." >&2
-  echo "Check internet access, disk space, and AWS CLI, then rerun this script." >&2
-  dataset1_failed=1
-fi
-
-echo
-echo "============================================"
-echo "Downloading Dataset 2: IANA service/port CSV"
-echo "============================================"
-echo "Source: ${IANA_URL}"
-echo "Destination: ${IANA_FILE}"
-echo
-
-# Download to a temporary file first so a failed request won't replace a
-# previously downloaded good copy with an incomplete file.
-tmp_file="$(mktemp "${DATASET2_DEST}/.iana-download.XXXXXX")"
-if curl --fail --location --silent --show-error \
-  --output "${tmp_file}" "${IANA_URL}"; then
-  if [[ -s "${tmp_file}" ]]; then
-    mv -f -- "${tmp_file}" "${IANA_FILE}"
-    echo "Dataset 2 download completed."
-  else
-    echo "ERROR: IANA download returned an empty file." >&2
-    rm -f -- "${tmp_file}"
-    dataset2_failed=1
+download() {
+  local url="$1" destination="$2"
+  if [[ -s "$destination" ]]; then
+    echo "Already exists: $destination"
+    return 0
   fi
-else
-  echo "ERROR: Dataset 2 download failed. Check your internet connection and retry." >&2
-  rm -f -- "${tmp_file}"
-  dataset2_failed=1
+  partial_file="${destination}.part"
+  echo "Downloading: $destination"
+  if curl --fail --location --retry 3 --connect-timeout 30 --speed-limit 1 --speed-time 120 \
+      --output "$partial_file" "$url" && [[ -s "$partial_file" ]]; then
+    if mv -f -- "$partial_file" "$destination"; then
+      partial_file=""
+      return 0
+    fi
+  fi
+  echo "ERROR: Download failed or returned an empty file: $destination" >&2
+  rm -f -- "$partial_file"
+  partial_file=""
+  return 1
+}
+
+traffic_files=(
+  "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Friday-16-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Thuesday-20-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Friday-23-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv"
+  "Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv"
+  "Friday-02-03-2018_TrafficForML_CICFlowMeter.csv"
+)
+failed=0
+for filename in "${traffic_files[@]}"; do
+  if ! download "${TRAFFIC_URL}/${filename}" "${TRAFFIC_DIR}/${filename}"; then
+    failed=1
+  fi
+done
+if ! download "$IANA_URL" "${IANA_DIR}/service-names-port-numbers.csv"; then
+  failed=1
 fi
-
-echo
-echo "============================================"
-echo "Download Summary"
-echo "============================================"
-echo "Dataset 1 folder: ${DATASET1_DEST}"
-echo "Dataset 2 folder: ${DATASET2_DEST}"
-echo
-
-csv_count="$(find "${DATASET1_DEST}" -type f -iname '*.csv' -print 2>/dev/null | wc -l | tr -d ' ')"
-echo "Dataset 1 CSV files found: ${csv_count}"
-
-if [[ -f "${IANA_FILE}" ]]; then
-  echo "Dataset 2 file: ${IANA_FILE}"
-  echo "Dataset 2 size: $(du -h "${IANA_FILE}" | awk '{print $1}')"
-fi
-
-if (( dataset1_failed != 0 || dataset2_failed != 0 )); then
-  echo
-  echo "WARNING: One or more downloads failed. Fix the reported issue and rerun this script."
+if (( failed != 0 )); then
+  echo "ERROR: One or more downloads failed. Rerun to retry missing files." >&2
   exit 1
 fi
-
-echo
-echo "All downloads completed successfully."
+echo "All ten original traffic CSVs and IANA are ready."

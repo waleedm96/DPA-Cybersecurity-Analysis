@@ -18,18 +18,21 @@ data/
 From the project folder, run:
 
 ```powershell
-python .\downloaders\download_data.py
+.\downloaders\download_datasets.bat
 ```
 
-The script downloads both traffic releases and IANA. It needs Python only. Existing nonempty files are skipped. A failed download starts again when you rerun the script. Allow about 55 GB of free space for a fresh download, including the improved ZIP kept in `downloads/`.
+On Linux or macOS, run `bash downloaders/download_datasets.sh`. These scripts download only the ten original traffic CSVs and IANA using curl. Source downloads occupy about 6.9 GB; allow additional space for Parquet outputs and Spark temporary files. Existing nonempty files are skipped, and new files replace their `.part` downloads only after successful, nonempty transfers. Failed files restart when rerun. See [downloader details](../downloaders/README.md).
 
 From a notebook in `notebooks/`, you can also run:
 
 ```python
-%run ../downloaders/download_data.py
+import runpy
+downloader = runpy.run_path("../downloaders/download_data.py")
+downloader["download_traffic"](data_folder)
+downloader["download_iana"](data_folder)
 ```
 
-The Volume notebook's `DOWNLOAD_DATA = True` downloads only original traffic and IANA. Leave it `False` if the data is already there.
+Here `data_folder` is the notebook's project data path. The Volume notebook's `DOWNLOAD_DATA = True` calls these two functions automatically. Leave it `False` if the data is already there. Running the Python script directly still downloads the improved release too.
 
 Original traffic filenames stay as provided by the source, including `Thuesday-20-02-2018...`. Nine files have 80 columns and 20 February has 84. We keep the source CSVs unchanged.
 

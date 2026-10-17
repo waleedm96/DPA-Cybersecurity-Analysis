@@ -7,12 +7,18 @@ from pyspark.sql.types import IntegerType, StringType, StructField, StructType
 spark = (
     SparkSession.builder
     .appName("DPA-Volume-Installation-Test")
-    .master("local[2]")
-    .config("spark.sql.shuffle.partitions", "4")
-    .config("spark.driver.memory", "4g")
     .getOrCreate()
 )
 spark.sparkContext.setLogLevel("ERROR")
+conf = spark.sparkContext.getConf()
+assert conf.get("spark.serializer") == "org.apache.spark.serializer.KryoSerializer", (
+    "Project spark-defaults.conf was not loaded"
+)
+assert spark.conf.get("spark.sql.shuffle.partitions") == "48"
+assert conf.get("spark.driver.memory") == "6g"
+print("Project Spark defaults loaded; master:", spark.sparkContext.master)
+print("Actual JVM maximum heap (GiB):",
+      spark.sparkContext._jvm.java.lang.Runtime.getRuntime().maxMemory() / 1024**3)
 
 schema = StructType([
     StructField("src_ip", StringType(), False),

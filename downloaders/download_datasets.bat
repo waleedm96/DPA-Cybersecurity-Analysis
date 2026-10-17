@@ -1,140 +1,74 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions DisableDelayedExpansion
 
-title CIC-IDS2018 Dataset Downloader
-
-echo ------------------------------------------
-echo       CIC-IDS2018 Dataset Downloader
-echo ------------------------------------------
-echo.
-
-REM Script is stored in the project's downloaders folder.
-REM Destination folders are relative to the project root.
 for %%I in ("%~dp0..") do set "PROJECT_ROOT=%%~fI"
-set "DATA_DIR=%PROJECT_ROOT%\data"
-set "DATASET1_DEST=%DATA_DIR%\raw\dataset_1"
-set "DATASET2_DEST=%DATA_DIR%\raw\dataset_2"
-set "BUCKET=s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/"
+set "TRAFFIC_DIR=%PROJECT_ROOT%\data\Dataset Network Traffic"
+set "IANA_DIR=%PROJECT_ROOT%\data\Dataset Service and Port"
+REM Batch files need %% for a literal percent in the URL.
+set "TRAFFIC_URL=https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%%20Traffic%%20Data%%20for%%20ML%%20Algorithms"
 set "IANA_URL=https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv"
-set "IANA_FILE=%DATASET2_DEST%\service-names-port-numbers.csv"
 
-echo Project root:
-echo "%PROJECT_ROOT%"
-echo.
-
-REM Check whether AWS CLI is installed.
-where aws >nul 2>&1
+where curl.exe >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: AWS CLI was not found.
-    echo Install AWS CLI v2 from https://aws.amazon.com/cli/
-    echo Then reopen this script.
-    echo.
-    pause
+    echo ERROR: curl.exe is required. 1>&2
     exit /b 1
 )
+if not exist "%TRAFFIC_DIR%\" mkdir "%TRAFFIC_DIR%"
+if not exist "%TRAFFIC_DIR%\" exit /b 1
+if not exist "%IANA_DIR%\" mkdir "%IANA_DIR%"
+if not exist "%IANA_DIR%\" exit /b 1
 
-REM Confirm the existing data folder is present.
-if not exist "%DATA_DIR%\" (
-    echo ERROR: The existing project data folder was not found:
-    echo "%DATA_DIR%"
-    echo Keep this script inside the project's downloaders folder.
-    echo.
-    pause
+set "FAILED=0"
+for %%F in (
+    "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Friday-16-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Thuesday-20-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Friday-23-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv"
+    "Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv"
+    "Friday-02-03-2018_TrafficForML_CICFlowMeter.csv"
+) do (
+    call :download_traffic "%%~F"
+    if errorlevel 1 set "FAILED=1"
+)
+set "DOWNLOAD_URL=%IANA_URL%"
+call :download "%IANA_DIR%\service-names-port-numbers.csv"
+if errorlevel 1 set "FAILED=1"
+if "%FAILED%"=="1" (
+    echo ERROR: One or more downloads failed. Rerun to retry missing files. 1>&2
     exit /b 1
 )
+echo All ten original traffic CSVs and IANA are ready.
+exit /b 0
 
-REM Create dataset directories.
-if not exist "%DATASET1_DEST%\" mkdir "%DATASET1_DEST%"
-if errorlevel 1 (
-    echo ERROR: Could not create "%DATASET1_DEST%"
-    pause
-    exit /b 1
+:download_traffic
+REM Keep URLs out of CALL arguments to avoid its second percent-expansion pass.
+set "DOWNLOAD_URL=%TRAFFIC_URL%/%~1"
+call :download "%TRAFFIC_DIR%\%~1"
+exit /b %errorlevel%
+
+:download
+set "DESTINATION=%~1"
+if exist "%DESTINATION%" (
+    for %%I in ("%DESTINATION%") do if %%~zI GTR 0 (
+        echo Already exists: "%DESTINATION%"
+        exit /b 0
+    )
 )
+set "PARTIAL=%DESTINATION%.part"
+echo Downloading: "%DESTINATION%"
+curl.exe --fail --location --retry 3 --connect-timeout 30 --speed-limit 1 --speed-time 120 --output "%PARTIAL%" "%DOWNLOAD_URL%"
+if errorlevel 1 goto download_failed
+if not exist "%PARTIAL%" goto download_failed
+for %%I in ("%PARTIAL%") do if %%~zI EQU 0 goto download_failed
+move /y "%PARTIAL%" "%DESTINATION%" >nul
+if errorlevel 1 goto download_failed
+exit /b 0
 
-if not exist "%DATASET2_DEST%\" mkdir "%DATASET2_DEST%"
-if errorlevel 1 (
-    echo ERROR: Could not create "%DATASET2_DEST%"
-    pause
-    exit /b 1
-)
-
-echo AWS CLI:
-aws --version
-echo.
-
-echo Downloading Dataset 1: CIC-IDS2018 CSV files
-
-
-echo Destination: "%DATASET1_DEST%"
-echo.
-
-aws s3 sync ^
-  --no-sign-request ^
-  --region ca-central-1 ^
-  "%BUCKET%" ^
-  "%DATASET1_DEST%"
-
-if errorlevel 1 (
-    echo.
-    echo ERROR: Dataset 1 download failed.
-    echo Check internet access, disk space, and AWS CLI.
-    echo The script will still attempt to download Dataset 2.
-    echo.
-    set "DATASET1_FAILED=1"
-) else (
-    echo Dataset 1 sync completed.
-)
-
-echo.
-
-echo Downloading Dataset 2: IANA service/port CSV
-
-
-echo Source: "%IANA_URL%"
-echo Destination: "%IANA_FILE%"
-echo.
-
-REM Use Windows curl. -f fails on HTTP errors, -L follows redirects,
-REM and -o writes the downloaded CSV to the intended destination.
-curl.exe --fail --location --output "%IANA_FILE%" "%IANA_URL%"
-if errorlevel 1 (
-    echo.
-    echo ERROR: Dataset 2 download failed.
-    echo Check your internet connection and try again.
-    echo.
-    set "DATASET2_FAILED=1"
-) else (
-    echo Dataset 2 download completed.
-)
-
-echo.
-
-echo Download Summary
-
-
-echo Dataset 1 folder: "%DATASET1_DEST%"
-echo Dataset 2 folder: "%DATASET2_DEST%"
-echo.
-
-if exist "%DATASET1_DEST%\" (
-    echo Dataset 1 CSV files found:
-    dir /b /s "%DATASET1_DEST%\*.csv" 2>nul | find /c /v ""
-)
-if exist "%IANA_FILE%" (
-    echo Dataset 2 file downloaded:
-    echo "%IANA_FILE%"
-)
-
-if defined DATASET1_FAILED (
-    echo.
-    echo WARNING: Dataset 1 did not finish successfully.
-)
-if defined DATASET2_FAILED (
-    echo.
-    echo WARNING: Dataset 2 did not finish successfully.
-)
-
-echo.
-echo You can rerun this script to retry the downloads.
-pause
-endlocal
+:download_failed
+echo ERROR: Download failed or returned an empty file: "%DESTINATION%" 1>&2
+if exist "%PARTIAL%" del /q "%PARTIAL%"
+exit /b 1

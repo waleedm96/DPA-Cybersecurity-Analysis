@@ -2,3 +2,5 @@
 *.tex text eol=lf
 *.bib text eol=lf
 *.sty text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
