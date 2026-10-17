@@ -1,72 +1,55 @@
-# SENTINEL - Part 1: Volume
+# DPA - Part 1: Network Traffic Analysis
 
-We use PySpark to study network traffic with CSE-CIC-IDS2018 and the IANA service and port registry.
+We use PySpark to analyse original CSE-CIC-IDS2018 traffic and join it with the IANA service and port registry.
 
-## Research questions
+## Questions
 
 1. What traffic patterns distinguish normal activity from attacks?
 2. Which network services and traffic characteristics are associated with different attack categories?
 
-## What we have done
+## Run the project
 
-The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
+1. Install Docker Desktop and start it.
+2. Open a terminal in this folder, where `docker-compose.yml` is located.
+3. Download the data with Python if it is not already present:
 
-1. Check the headers and small traffic samples, and inspect IANA.
-2. Define explicit schemas for both datasets.
-3. Test CSV reading and Parquet saving with 5,000 traffic rows and the whole IANA file.
-4. Read all ten original traffic files, save typed Parquet, clean both datasets, and record the row counts.
-5. Join the cleaned traffic with IANA by destination port and protocol, keeping all traffic rows.
-6. Compare normal traffic and attacks, examine each label, and find its top ports and services.
-7. Use small graphs and tables to explain traffic patterns and registered service associations.
+   ```powershell
+   python downloaders/download_data.py
+   ```
 
-Each cleaning step has a reason before its code. We keep the source CSVs unchanged.
+4. Start Jupyter:
 
-Part 1 uses `data/Dataset Network Traffic/`. Nine files have 80 columns and 20 February has 84. We use the matching schema for each file. The extra fields are null where a source file does not have them. The improved release is saved separately for later work.
+   ```powershell
+   docker compose up --build -d
+   ```
 
-## Run the notebook
+5. Open <http://127.0.0.1:8888/lab?token=sentinel-local>.
+6. Open `notebooks/DPA_Volume_Part1.ipynb` and run the cells from top to bottom. Leave `DOWNLOAD_DATA = False` when the data is already present. The optional notebook download cell can also download the Part 1 data.
 
-Start Docker Desktop. From this project folder, run:
+To stop Jupyter, run `docker compose down`. Data and notebook changes stay in this folder.
 
-```powershell
-docker compose up -d
-```
+Without Docker, use Jupyter with Java and PySpark already installed, then install the plotting packages with `pip install -r requirements.txt`.
 
-Open <http://127.0.0.1:8888/lab> with token `sentinel-local`.
-Open the notebook and run the cells from top to bottom. Keep `DOWNLOAD_DATA = False` if the data is already there.
+## Notebook steps
 
-You can also use your own Jupyter environment with PySpark and Java. Step 1 uses Python only.
+1. Check file headers and small samples.
+2. Define the two traffic schemas and the IANA schema.
+3. Test CSV reading and typed Parquet with 5,000 sample traffic rows.
+4. Read all ten original files, clean both datasets, and record each cleaning count.
+5. Join traffic with IANA by destination port and protocol.
+6. Calculate full-data summaries with Spark.
+7. Plot the saved summaries.
 
-To stop Docker:
+The source traffic is about 7 GB and contains over 16 million records. Spark processes the files in parallel and saves typed Parquet without loading the full traffic table into Python memory. The source CSVs are kept unchanged.
 
-```powershell
-docker compose down
-```
+## Files and results
 
-## Data and results
+- `downloaders/download_data.py`: data download script. The improved release is optional and is not used in Part 1.
+- `data/README.md`: data sources, download options, licences, and folder names.
+- `data/parquet/`: sample, raw, cleaned, and enriched tables made by the notebook.
+- `reports/cleaning/original/cleaning_audit.csv`: removed and modified row counts with reasons.
+- `reports/analysis/`: small result tables for all 15 source labels.
+- `reports/charts/`: the four figures made in Step 7.
+- `latex_report/`: report files still to be completed by the group.
 
-See [data/README.md](data/README.md) for download instructions and source links.
-
-| Folder | What it contains |
-| --- | --- |
-| `data/Dataset Network Traffic/` | Original traffic CSVs used in Part 1 |
-| `data/Dataset Service and Port/` | IANA CSV |
-| `data/Dataset Network Traffic improved/` | Improved release for later work |
-| `data/samples/` | Small traffic samples |
-| `data/parquet/sample/` | Parquet tables for the sample test |
-| `data/parquet/raw/` | All source data as typed Parquet |
-| `data/parquet/cleaned/` | Cleaned traffic and IANA tables |
-| `data/parquet/enriched/traffic/` | Traffic with IANA service names |
-| `reports/inspection/original/` | Header checks and inspection summary |
-| `reports/cleaning/original/cleaning_audit.csv` | Row counts and reasons for each cleaning step |
-| `reports/analysis/` | Small research-result tables saved as CSV |
-| `reports/charts/` | Recorded bytes per packet, packet rates, service ports, and activity rates |
-
-Step 5 checks that the join keeps the same row count and prints matched and unmatched traffic counts. A service name is a registered port association, not proof of the application.
-
-The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, and `final_traffic` for the saved table with service names.
-
-Step 6 explains which research question each comparison answers. It compares averages and medians, shows the middle 50% of flow durations, and lists service coverage and top ports for each label. These are patterns in this dataset, not a tested attack detector.
-
-Step 7 shows average recorded bytes per packet first (1A), median packet rates second (1B), then a service-percentage heatmap (2A) and four small bar charts comparing normal and attack records per active minute on the same service (2B). Each graph has a short code cell and explanation. The charts use selected categories from the full-data summaries; the full results cover all 14 attack categories. Run the new service summary in 6F and save it in 6G once before making the Question 2 figures. After that, they read the saved summaries without starting Spark. Earlier prediction experiments remain saved in `reports/analysis/detection_check.json` for reference and are not used by these graphs.
-
-Next: CSV and Parquet timing comparisons, and the final report.
+Once the result CSVs exist, the Step 7 cells can make the charts without rerunning Spark. Run the folder setup cell first.

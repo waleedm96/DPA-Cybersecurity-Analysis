@@ -7,6 +7,7 @@ from urllib.request import urlretrieve
 from zipfile import BadZipFile, ZipFile
 
 data_folder = Path(__file__).resolve().parents[1] / "data"
+DOWNLOAD_IMPROVED = False  # Part 1 only needs the original traffic and IANA.
 TRAFFIC_BASE_URL = (
     "https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/"
     "Processed%20Traffic%20Data%20for%20ML%20Algorithms/"
@@ -80,8 +81,9 @@ def download_iana(data_folder):
 
 def main():
     download_traffic(data_folder)
-    download_improved(data_folder)
     download_iana(data_folder)
+    if DOWNLOAD_IMPROVED:
+        download_improved(data_folder)
     print("Download process finished.")
 
 
