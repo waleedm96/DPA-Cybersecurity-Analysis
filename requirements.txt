@@ -1,6 +1,5 @@
-# These are the libraries we have used in the project.
-pyspark
-pandas
-matplotlib
-seaborn
-jupyterlab
+numpy==1.24.4
+matplotlib==3.8.0
+pandas==2.0.3
+seaborn==0.13.0
+pyarrow==13.0.0
