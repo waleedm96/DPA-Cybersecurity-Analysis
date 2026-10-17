@@ -14,9 +14,9 @@ services:
       - "8888:8888"
 
     volumes:
-      - .:/home/jovyan/dpa_volume
+      - .:/home/jovyan/Dpa-Cybersecurity-Analysis
 
-    working_dir: /home/jovyan/dpa_volume
+    working_dir: /home/jovyan/Dpa-Cybersecurity-Analysis
 
     environment:
       JUPYTER_ENABLE_LAB: "yes"
@@ -25,6 +25,6 @@ services:
       CHOWN_HOME: "yes"
       CHOWN_HOME_OPTS: "-R"
       GRANT_SUDO: "yes"
-      SPARK_CONF_DIR: "/home/jovyan/dpa_volume/config"
+      SPARK_CONF_DIR: "/home/jovyan/Dpa-Cybersecurity-Analysis/config"
 
     restart: unless-stopped
