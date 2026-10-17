@@ -2,6 +2,16 @@
 
 Part 1 uses two datasets: the original CSE-CIC-IDS2018 traffic CSVs and the IANA service and port registry.
 
+## Included evaluation subset
+
+`subset/` is included in Git. It contains ten `data network and traffic subset - <day>.csv` files and `service and port subset.csv`. The latter is an unchanged copy of the full IANA file. The notebook defaults to `USE_SUBSET = True`, so it can run without downloading the full sources.
+
+The included snapshot has **1,003,840 traffic records** and **14,536 IANA records** before cleaning. Traffic files are about 30-49 MiB each. The verified subset run retains all 15 traffic labels and produces 981,351 cleaned traffic records.
+
+Each traffic file keeps its source header and all source columns. There are 100,000 randomly selected rows per day, plus up to 100 real examples per label and per cleaning problem that were not already selected. The random seed is fixed at 42. A source row is selected once; different source rows with identical values remain natural duplicates. Missing values and invalid measurements are not invented or repaired. Each CSV stays below 90 MiB.
+
+This is an evaluation subset with extra examples of rare labels and dirty records. Its proportions and sampled record rates do not represent the full population. Use `USE_SUBSET = False` for the full research analysis. Both modes use the same cleaning and analysis code and keep their output folders separate.
+
 ## Download
 
 From the project folder:
@@ -18,15 +28,17 @@ To also download the improved release, set `DOWNLOAD_IMPROVED = True` near the t
 
 | Folder | Contents |
 | --- | --- |
+| `subset/` | Evaluation CSVs included in Git |
 | `Dataset Network Traffic/` | Ten original traffic CSVs used in Part 1 |
 | `Dataset Service and Port/` | IANA CSV |
 | `Dataset Network Traffic improved/` | Optional improved release for later work |
 | `downloads/` | Improved ZIP, if requested |
-| `samples/` | 500 rows per traffic file for the reading test |
+| `samples/full/`, `samples/subset/` | 500 rows per traffic file for the selected mode's reading test |
 | `parquet/sample/` | Typed tables from the sample test |
 | `parquet/raw/` | All source rows as typed Parquet |
 | `parquet/cleaned/` | Cleaned traffic and IANA |
 | `parquet/enriched/traffic/` | Traffic with IANA service names |
+| `parquet/subset/` | Separate sample, raw, cleaned, and enriched tables for subset mode |
 
 Nine original files have 80 columns; 20 February has 84. Filenames stay as provided, including `Thuesday-20-02-2018...`. Source CSVs are not changed by the notebook.
 
