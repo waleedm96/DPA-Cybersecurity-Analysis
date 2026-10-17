@@ -46,7 +46,7 @@ assert {row.label: row.flows for row in label_counts.collect()} == {
     "Benign": 2,
 }, "Spark SQL label counts were incorrect"
 
-output = Path("/home/jovyan/work/data/parquet/installation_test")
+output = Path(__file__).resolve().parents[1] / "data" / "parquet" / "installation_test"
 output.parent.mkdir(parents=True, exist_ok=True)
 df.write.mode("overwrite").parquet(str(output))
 read_back = spark.read.parquet(str(output))

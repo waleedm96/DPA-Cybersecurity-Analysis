@@ -1,65 +1,42 @@
-# Project datasets
+# Project data
 
 ```text
 data/
-  CSECICIDS2018_original/     # Part 1: 10 original CSVs (about 6.89 GB)
-  Service and port name/     # IANA registry CSV
-  CSECICIDS2018_improved/     # Improved release for later work (about 36.04 GB)
-  README.md
+  Dataset Network Traffic/           # Original traffic used in Part 1
+  Dataset Service and Port/          # IANA registry
+  Dataset Network Traffic improved/  # Improved traffic for later work
+  samples/                           # Small CSV samples
+  parquet/
+    sample/                          # Sample ingestion test
+    raw/                             # Typed source tables
+    cleaned/                         # Cleaned traffic and IANA
+    enriched/traffic/                # Traffic with service names
 ```
 
-## Download the data
+## Download
 
-The Python script downloads the original traffic CSVs from Amazon S3,
-downloads and extracts the improved-release ZIP, and downloads the IANA registry.
-It uses Python's standard library and works without Docker. Allow about 55 GB
-free for a fresh download of both releases, including the retained ZIP.
-
-From the inner project folder containing `data/` and `downloaders/`, run:
+From the project folder, run:
 
 ```powershell
 python .\downloaders\download_data.py
 ```
 
-From a notebook opened in `notebooks/`, you can also run:
+The script downloads both traffic releases and IANA. It needs Python only. Existing nonempty files are skipped. A failed download starts again when you rerun the script. Allow about 55 GB of free space for a fresh download, including the improved ZIP kept in `downloads/`.
+
+From a notebook in `notebooks/`, you can also run:
 
 ```python
 %run ../downloaders/download_data.py
 ```
 
-Or set `DOWNLOAD_DATA = True` in the Volume notebook's optional download cell.
-Leave it `False` when the files are already available.
-The notebook downloads only the original traffic CSVs and IANA; the standalone
-script downloads both traffic releases and IANA.
+The Volume notebook's `DOWNLOAD_DATA = True` downloads only original traffic and IANA. Leave it `False` if the data is already there.
 
-Existing nonempty CSVs are skipped, including an IANA filename ending in `(3).csv`.
-A new download is saved as `.part` and renamed after it finishes. If it fails,
-rerun the script: that file restarts from the beginning and completed files are
-skipped. The source filename `Thuesday-20-02-2018...` is intentional.
+Original traffic filenames stay as provided by the source, including `Thuesday-20-02-2018...`. Nine files have 80 columns and 20 February has 84. We keep the source CSVs unchanged.
 
-Original CSVs go directly into `CSECICIDS2018_original/`. The improved ZIP is
-saved under `downloads/` and its CSVs are extracted into `CSECICIDS2018_improved/`.
-Existing extracted CSVs are kept, and interrupted extractions use `.part` files.
+Inspection reports are in `../reports/inspection/original/`. The cleaning log is `../reports/cleaning/original/cleaning_audit.csv`.
 
-## Notebook status
+## Sources
 
-Part 1 uses the original release and IANA. The original traffic files have
-80 columns, except 20 February with 84. The notebook defines both schemas and
-combines samples by column name. Extra fields are null where the source file
-does not supply them; no addresses are inferred.
-
-Generated samples are under `intermediate/original/`, Parquet tables under
-`parquet/original/sample/`, and inspection reports under
-`../reports/inspection/original/`.
-
-Step 4 reads all original CSVs and saves full typed inputs under
-`parquet/original/raw/` and cleaned tables under `parquet/original/cleaned/`.
-The cleaning audit is `../reports/cleaning/original/cleaning_audit.csv`.
-Its removal counts are sequential; registry lookup exclusions and service-alias
-aggregation are distinguished from invalid traffic data.
-
-## Source links
-
-- [Original traffic CSV directory](https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%20Traffic%20Data%20for%20ML%20Algorithms/)
-- [Improved-release documentation and download](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html)
-- [IANA registry CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv)
+- [Original traffic CSVs](https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%20Traffic%20Data%20for%20ML%20Algorithms/)
+- [Improved dataset](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html)
+- [IANA CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv)
