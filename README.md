@@ -17,6 +17,7 @@ The code is in [DPA_Volume_Part1.ipynb](notebooks/DPA_Volume_Part1.ipynb).
 4. Read all ten original traffic files, save typed Parquet, clean both datasets, and record the row counts.
 5. Join the cleaned traffic with IANA by destination port and protocol, keeping all traffic rows.
 6. Compare normal traffic and attacks, examine each label, and find its top ports and services.
+7. Use small graphs and tables to explain traffic patterns and registered service associations.
 
 Each cleaning step has a reason before its code. We keep the source CSVs unchanged.
 
@@ -58,6 +59,7 @@ See [data/README.md](data/README.md) for download instructions and source links.
 | `reports/inspection/original/` | Header checks and inspection summary |
 | `reports/cleaning/original/cleaning_audit.csv` | Row counts and reasons for each cleaning step |
 | `reports/analysis/` | Small research-result tables saved as CSV |
+| `reports/charts/` | Recorded bytes per packet, packet rates, service ports, and activity rates |
 
 Step 5 checks that the join keeps the same row count and prints matched and unmatched traffic counts. A service name is a registered port association, not proof of the application.
 
@@ -65,4 +67,6 @@ The notebook uses `raw_traffic` for the typed input, `traffic` while cleaning, a
 
 Step 6 explains which research question each comparison answers. It compares averages and medians, shows the middle 50% of flow durations, and lists service coverage and top ports for each label. These are patterns in this dataset, not a tested attack detector.
 
-Next: charts, CSV and Parquet timing comparisons, and the final report.
+Step 7 shows average recorded bytes per packet first (1A), median packet rates second (1B), then a service-percentage heatmap (2A) and new traffic records per active minute relative to normal traffic on the same service (2B). Each graph has a short code cell and explanation. The figures use selected categories from the full-data summaries; the full results cover all 14 attack categories. Run the new service summary in 6F and save it in 6G once before making the Question 2 figures. After that, the figures read the saved summaries without starting Spark. Earlier prediction experiments remain saved in `reports/analysis/detection_check.json` for reference and are not used by these graphs.
+
+Next: CSV and Parquet timing comparisons, and the final report.
