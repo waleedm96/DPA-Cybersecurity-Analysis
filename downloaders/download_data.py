@@ -2,11 +2,14 @@
 """Download original and improved traffic CSVs and the IANA registry."""
 
 from pathlib import Path
-from shutil import copyfileobj
-from urllib.request import urlretrieve
+from shutil import copyfileobj, which
+from subprocess import run
+from time import sleep
 from zipfile import BadZipFile, ZipFile
 
+# Save downloads inside the project data folder.
 data_folder = Path(__file__).resolve().parents[1] / "data"
+DOWNLOAD_IMPROVED = False  # Part 1 only needs the original traffic and IANA.
 TRAFFIC_BASE_URL = (
     "https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/"
     "Processed%20Traffic%20Data%20for%20ML%20Algorithms/"
@@ -32,19 +35,40 @@ TRAFFIC_FILES = [
 
 
 def download(url, destination):
-    """Skip existing files; use .part until a new download finishes."""
+    """Keep completed files and resume interrupted downloads."""
     if destination.is_file() and destination.stat().st_size > 0:
         print(f"Already exists: {destination.name}", flush=True)
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial_file = destination.with_name(destination.name + ".part")
-    print(f"Downloading: {destination.name}", flush=True)
-    urlretrieve(url, str(partial_file))
-    partial_file.replace(destination)
+    curl = which("curl.exe") or which("curl")
+    if not curl:
+        raise OSError("curl is required. Run the downloader in the project Docker container.")
+
+    for attempt in range(1, 6):
+        saved = partial_file.stat().st_size if partial_file.exists() else 0
+        print(f"Downloading {destination.name}: attempt {attempt}/5, {saved / 1024**2:.1f} MB saved",
+              flush=True)
+        # curl checks incomplete transfers and resumes from the .part file.
+        result = run([curl, "--fail", "--location", "--silent", "--show-error",
+                      "--connect-timeout", "30", "--speed-limit", "1024", "--speed-time", "60",
+                      "--continue-at", "-", "--output", str(partial_file), url])
+        if result.returncode == 0 and partial_file.exists() and partial_file.stat().st_size > 0:
+            partial_file.replace(destination)
+            print(f"Saved: {destination.name}", flush=True)
+            return
+        # If the server cannot resume, restart this file on the next attempt.
+        if result.returncode == 33:
+            partial_file.unlink(missing_ok=True)
+        if attempt < 5:
+            print("Connection failed. Retrying in 5 seconds...", flush=True)
+            sleep(5)
+    raise OSError(f"Could not download {destination.name} after 5 attempts. Progress is kept in .part")
 
 
 def download_traffic(data_folder):
     folder = data_folder / "Dataset Network Traffic"
+    # Download the ten original traffic files one at a time.
     for filename in TRAFFIC_FILES:
         download(TRAFFIC_BASE_URL + filename, folder / filename)
 
@@ -68,6 +92,7 @@ def download_improved(data_folder):
                 continue
             print(f"Extracting: {name}", flush=True)
             partial_file = destination.with_name(name + ".part")
+            # Copy small chunks so the whole CSV is not kept in memory.
             with source.open(name) as csv_file, partial_file.open("wb") as output:
                 copyfileobj(csv_file, output, length=1024 * 1024)
             partial_file.replace(destination)
@@ -80,8 +105,9 @@ def download_iana(data_folder):
 
 def main():
     download_traffic(data_folder)
-    download_improved(data_folder)
     download_iana(data_folder)
+    if DOWNLOAD_IMPROVED:
+        download_improved(data_folder)
     print("Download process finished.")
 
 

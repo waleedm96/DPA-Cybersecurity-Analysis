@@ -1,7 +1,10 @@
-# Local datasets and generated results
+# Source datasets and generated analysis results stay local.
 /data/*
 !/data/.gitkeep
 !/data/README.md
+!/data/subset/
+/data/subset/*
+!/data/subset/*.csv
 /reports/
 
 # Python and Jupyter

@@ -1,45 +1,41 @@
-# Project data
+# Data & Licencing
 
-```text
-data/
-  Dataset Network Traffic/           # Original traffic used in Part 1
-  Dataset Service and Port/          # IANA registry
-  Dataset Network Traffic improved/  # Improved traffic for later work
-  samples/                           # Small CSV samples
-  parquet/
-    sample/                          # Sample ingestion test
-    raw/                             # Typed source tables
-    cleaned/                         # Cleaned traffic and IANA
-    enriched/traffic/                # Traffic with service names
-```
+## Subset 
 
-## Download
+Use `USE_SUBSET = True` in the notebook. So no need to download the data as subset is already present.
 
-From the project folder, run:
+**Subset 1**
+
+First subset contains **10 Network Traffic CSVs** with **1,003,840 uncleaned records** in total.
+
+Each traffic file keeps their original columns. Rows were selected from all ten days using seed 42: 100,000 random rows per day, plus up to 100 examples per label and cleaning problem. No missing values or duplicates were invented. Extra rare and dirty records help test cleaning.
+
+
+**Subset 2**
+
+Subset 2 contains **service and Ports CSV**, an unchanged copy of the full IANA dataset (**14,536 records**).
+
+
+
+
+
+## Full data
+
+Set `USE_SUBSET = False` and `DOWNLOAD_DATA = True` in the notebook, then restart the kernel and run all cells. Or download first from the project folder:
 
 ```powershell
-.\downloaders\download_datasets.bat
+python downloaders/download_data.py
 ```
 
-On Linux or macOS, run `bash downloaders/download_datasets.sh`. These scripts download only the ten original traffic CSVs and IANA using curl. Source downloads occupy about 6.9 GB; allow additional space for Parquet outputs and Spark temporary files. Existing nonempty files are skipped, and new files replace their `.part` downloads only after successful, nonempty transfers. Failed files restart when rerun. See [downloader details](../downloaders/README.md).
+The script downloads original Network Traffic and IANA Dataset. The original Network Traffic CSVs and IANA CSv need about 7 GB, plus space for generated tables.
 
-From a notebook in `notebooks/`, you can also run:
+Inside the running project container, use `docker compose exec jupyter python downloaders/download_data.py`. 
+To also download and extract the optional improved release, set `DOWNLOAD_IMPROVED = True` in that file before running it.
 
-```python
-import runpy
-downloader = runpy.run_path("../downloaders/download_data.py")
-downloader["download_traffic"](data_folder)
-downloader["download_iana"](data_folder)
-```
 
-Here `data_folder` is the notebook's project data path. The Volume notebook's `DOWNLOAD_DATA = True` calls these two functions automatically. Leave it `False` if the data is already there. Running the Python script directly still downloads the improved release too.
 
-Original traffic filenames stay as provided by the source, including `Thuesday-20-02-2018...`. Nine files have 80 columns and 20 February has 84. We keep the source CSVs unchanged.
+## Sources and Licences
 
-Inspection reports are in `../reports/inspection/original/`. The cleaning log is `../reports/cleaning/original/cleaning_audit.csv`.
-
-## Sources
-
-- [Original traffic CSVs](https://cse-cic-ids2018.s3.ca-central-1.amazonaws.com/Processed%20Traffic%20Data%20for%20ML%20Algorithms/)
-- [Improved dataset](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html)
-- [IANA CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv)
+- CSE-CIC-IDS2018: [dataset and licence](https://www.unb.ca/cic/datasets/ids-2018.html), [AWS dataset page](https://registry.opendata.aws/cse-cic-ids2018/). Cite the dataset and include the AWS link when redistributing it.
+- IANA: [service and port CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv), [licensing terms](https://www.iana.org/help/licensing-terms).
+- Optional improved release: [provider documentation](https://intrusion-detection.distrinet-research.be/CNS2022/CSECICIDS2018.html).

@@ -10,12 +10,14 @@ spark = (
     .getOrCreate()
 )
 spark.sparkContext.setLogLevel("ERROR")
+assert spark.version == "4.2.0", f"Expected Spark 4.2.0, found {spark.version}"
 conf = spark.sparkContext.getConf()
 assert conf.get("spark.serializer") == "org.apache.spark.serializer.KryoSerializer", (
     "Project spark-defaults.conf was not loaded"
 )
 assert spark.conf.get("spark.sql.shuffle.partitions") == "48"
-assert conf.get("spark.driver.memory") == "6g"
+assert conf.get("spark.driver.memory") == "4g"
+assert spark.sparkContext.master == "local[2]"
 print("Project Spark defaults loaded; master:", spark.sparkContext.master)
 print("Actual JVM maximum heap (GiB):",
       spark.sparkContext._jvm.java.lang.Runtime.getRuntime().maxMemory() / 1024**3)
