@@ -101,7 +101,7 @@ This downloads all ten original traffic CSVs and IANA. The original traffic file
 USE_SUBSET = False
 DOWNLOAD_DATA = False
 ```
-The full dataset files must be in `data/Dataset Network Traffic/` and `data/Dataset Service and Port/`. T
+The full dataset files must be in `data/Dataset Network Traffic/` and `data/Dataset Service and Port/`.
 
 
 
