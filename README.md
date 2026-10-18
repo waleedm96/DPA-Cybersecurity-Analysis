@@ -28,7 +28,7 @@ DOWNLOAD_DATA = False
 
 This uses the included CSVs: about one million uncleaned traffic records and the full IANA file. No download is needed.
 
-Spark settings are in `config/spark-defaults.conf`: all available CPU cores, 6 GB driver memory and 48 shuffle partitions. Reduce the memory setting if needed, then restart the kernel. `.env.example` contains optional Jupyter settings; the defaults work without creating a `.env` file.
+Spark settings are in `config/spark-defaults.conf`: two CPU cores, 4 GB driver memory, 64 MB file partitions and 48 shuffle partitions. This leaves room for Python and file reads when Docker has about 8 GB available. Restart the kernel after changing these settings. `.env.example` contains optional Jupyter settings; the defaults work without creating a `.env` file.
 
 To check the installation, run `docker compose exec jupyter python scripts/test_spark.py`. This checks Spark, SQL and Parquet; run the notebook to check the complete analysis.
 
@@ -37,6 +37,8 @@ To check the installation, run `docker compose exec jupyter python scripts/test_
 In the first code cell, set `USE_SUBSET = False`. Set `DOWNLOAD_DATA = True` if the original files are not downloaded yet. The traffic CSVs need about 7 GB, plus space for Parquet and Spark temporary files.
 
 After changing the settings, restart the kernel and run all cells.
+
+After changing the Docker setup, save the notebook and run `docker compose up --build -d --force-recreate` from this folder. Reopen Jupyter and restart the kernel before running the notebook again. The notebook prints the Spark version; this Docker setup uses Spark 4.2.0.
 
 ## What the notebook does
 
