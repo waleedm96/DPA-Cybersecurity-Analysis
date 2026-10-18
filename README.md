@@ -1,14 +1,21 @@
-# DPA - Network Traffic Analysis
+# DPA  
 
-We use Spark to clean network traffic data, join it with IANA service names and answer:
+# Sentinal Network Intrusion Analysis
+
+We use Spark to clean network traffic data, join it with IANA service names and we answer these questions below:
 
 1. What traffic patterns distinguish normal activity from attacks?
 2. Which network services and traffic characteristics are associated with different attack categories?
 
-# Pre-Requisities
-1. Git, Docker and Docker Compose should already be installed. Keep Docker running.
-2. There should be at least 50 GB space present in the directory if we are downloading full data
-3. We are providing the terminal commands below they work both in Windows PowerShell and Linux Terminal.
+# Pre Requisities
+1. Git 
+2. Docker
+3. Docker Compose should already be installed. 
+4. Keep Docker running.
+5. There should be at least 50 GB space present in the directory if we are downloading full data
+ 
+## Note
+We are providing the terminal commands below they work both in Windows PowerShell and Linux Terminal.
 
 
 # Step by Step Process to Run Our Code
@@ -66,7 +73,6 @@ Enter the below token after opening the link
 ```text
 sentinel-local
 ```
-
 
 
 ## 5. Choose the dataset and parameters how you want to run the code
