@@ -1,51 +1,142 @@
 # DPA - Network Traffic Analysis
 
-We use PySpark to clean CSE-CIC-IDS2018 traffic, join it with IANA service names, and answer:
+We use Spark to clean network traffic data, join it with IANA service names and answer:
 
 1. What traffic patterns distinguish normal activity from attacks?
 2. Which network services and traffic characteristics are associated with different attack categories?
 
-## Run the project
+# Pre-Requisities
+1. Git, Docker and Docker Compose should already be installed. Keep Docker running.
+2. There should be at least 50 GB space present in the directory if we are downloading full data
+3. We are providing the terminal commands below they work both in Windows PowerShell and Linux Terminal.
 
-1. Install and start Docker Desktop.
-2. Open a terminal in this folder, beside `docker-compose.yml`.
-3. Run:
 
-   ```powershell
-   docker compose up --build -d
-   ```
+# Step by Step Process to Run Our Code
 
-4. Open <http://127.0.0.1:8888/lab?token=sentinel-local>.
-5. Open `notebooks/DPA_Volume_Part1.ipynb`.
-6. Choose **Restart Kernel and Run All Cells**.
+## 1. Create a folder
+First we will open the Powershell or Linux terminal and go to location where I want to save the project for example `(cd 'C:\Users\PC\Desktop\Data Processing')` then we will run the below commands
+```sh
+#step 1 go to desired location
+cd 'your-location as show above'
+#step 2 Create Directory
+mkdir DPA-Project
+#step 3 Go in the Directory
+cd DPA-Project
+```
 
-For a quick evaluation without downloading data, set:
+
+
+## 2. We will clone the github repository using the commands mentioned below on the terminal or PowerShell
+```sh
+#step 1 Clone the repository
+git clone https://github.com/waleedm96/DPA-Cybersecurity-Analysis.git
+#step 2 move into the repository
+cd DPA-Cybersecurity-Analysis
+```
+
+
+
+
+## 3. We will start the project by running docker command it will build our container
+
+```sh
+#Step 1: build the container as we are runing it the first time
+docker compose up --build -d
+```
+Wait for the build to finish. Docker provides Python, Spark 4.2.0, Jupyter and the required libraries. It will take sometime to complete
+
+
+
+
+## 4. Open Jupyter via two options available
+
+#Option 1: directly run the below command to go directly to container
+Open [JupyterLab](http://127.0.0.1:8888/lab?token=sentinel-local).
+
+option 2: Run the below mentioned command and type the token manually
+ `http://127.0.0.1:8888/lab`
+```text
+sentinel-local
+```
+
+
+
+## 5. Choose the dataset and parameters how you want to run the code
+
+These settings are present in the first cell of our jupiter code
+
+**Option1: Included subset no need to download the dataset**
 
 ```python
 USE_SUBSET = True
 DOWNLOAD_DATA = False
 ```
+This uses about one million uncleaned network traffic records and full IANA Service and Port Data. Use it to evaluate the project quickly.
 
-This uses the included CSVs: about one million uncleaned traffic records and the full IANA file. No download is needed.
 
-Spark settings are in `config/spark-defaults.conf`: two CPU cores, 4 GB driver memory, 64 MB file partitions and 48 shuffle partitions. This leaves room for Python and file reads when Docker has about 8 GB available. Restart the kernel after changing these settings. `.env.example` contains optional Jupyter settings; the defaults work without creating a `.env` file.
 
-To check the installation, run `docker compose exec jupyter python scripts/test_spark.py`. This checks Spark, SQL and Parquet; run the notebook to check the complete analysis.
+**Option2: Using Full datasets but need to download it before processing**
 
-## Run the full dataset
+```python
+USE_SUBSET = False
+DOWNLOAD_DATA = True
+```
+This downloads all ten original traffic CSVs and IANA. The original traffic files need about 6.89 GB, plus space for Parquet and temporary files. Download time depends on the connection almost 30-40 mins. Interrupted downloads are retried and resumed when the server supports it and it using the code present in the `downloaders` folder.
 
-In the first code cell, set `USE_SUBSET = False`. Set `DOWNLOAD_DATA = True` if the original files are not downloaded yet. The traffic CSVs need about 7 GB, plus space for Parquet and Spark temporary files.
 
-After changing the settings, restart the kernel and run all cells.
 
-After changing the Docker setup, save the notebook and run `docker compose up --build -d --force-recreate` from this folder. Reopen Jupyter and restart the kernel before running the notebook again. The notebook prints the Spark version; this Docker setup uses Spark 4.2.0.
+**Option3: Full datasets already downloaded:**
 
-## What the notebook does
+```python
+USE_SUBSET = False
+DOWNLOAD_DATA = False
+```
+The full dataset files must be in `data/Dataset Network Traffic/` and `data/Dataset Service and Port/`. T
 
-Check files, define schemas, test reading, clean both datasets, join IANA service names, then calculate and plot the results. Each cleaning step explains its reason and prints the rows removed or changed. Original CSVs stay unchanged.
 
-Results are saved in `reports/subset/` for subset mode and `reports/` for full mode: `cleaning/original/` has the cleaning log, `analysis/` has result tables, and `charts/` has the figures. Parquet tables are saved in `data/parquet/`.
 
-Use the subset to check the project quickly. It includes extra rare labels and dirty records, so use the full dataset for final research findings. See [data/README.md](data/README.md) for sources and folders.
+## 6. Runing the Code after setting the Parameters
 
-To stop Jupyter, run `docker compose down`.
+Select **Kernel -> Restart Kernel and Run All Cells**, then wait for the results and charts. our we can run all the cell individually
+
+we have repeat this after changing the dataset options. Use the subset to check the project and the full data for final results. The subset includes dirty records, so its percentages differ from the full dataset.
+
+
+
+
+## 7. Results
+
+1. So our Subset results are saved in `reports/subset/`. Full dataset results are saved in `reports/`.
+2. Inside the selected results folder, `cleaning/original/` contains the cleaning log, `analysis/`  contains the result tables, and `charts/` contains the graphs that we make for analysis.
+3. Parquet files are saved in `data/parquet/subset/` for the subset of data  and `data/parquet/` for full data.
+4. Source CSVs stay unchanged. Running the same mode again replaces its generated results.
+
+
+
+## 8. Stop Spark
+
+Last cell contain code to stop the spark, run the command to stop it
+
+
+
+## 9. Stop the project
+
+Save your notebook first then run the commands mentioned below
+
+```sh
+docker compose down
+```
+
+
+
+## 10. If you want to rerun (optional)
+
+Your files remain saved. To start again, run `docker compose up -d` and reopen Jupyter.
+If port 8888 is already in use, stop the other application or container using it.
+We can change Spark settings present  in `config/spark-defaults.conf` the defaults use two cores and 4 GB of driver memory.
+
+
+
+## 11. Reading about set source and licence
+
+Dataset sources, licence terms and download details are in [data/README.md](data/README.md).
