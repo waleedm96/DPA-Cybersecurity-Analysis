@@ -19,7 +19,7 @@ We use PySpark to clean CSE-CIC-IDS2018 traffic, join it with IANA service names
 5. Open `notebooks/DPA_Volume_Part1.ipynb`.
 6. Choose **Restart Kernel and Run All Cells**.
 
-The notebook starts with:
+For a quick evaluation without downloading data, set:
 
 ```python
 USE_SUBSET = True
