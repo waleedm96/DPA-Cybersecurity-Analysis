@@ -59,16 +59,28 @@ if exist "%DESTINATION%" (
     )
 )
 set "PARTIAL=%DESTINATION%.part"
-echo Downloading: "%DESTINATION%"
-curl.exe --fail --location --retry 3 --connect-timeout 30 --speed-limit 1 --speed-time 120 --output "%PARTIAL%" "%DOWNLOAD_URL%"
-if errorlevel 1 goto download_failed
-if not exist "%PARTIAL%" goto download_failed
-for %%I in ("%PARTIAL%") do if %%~zI EQU 0 goto download_failed
+set "ATTEMPT=0"
+
+:download_attempt
+set /a ATTEMPT+=1 >nul
+echo Downloading: "%DESTINATION%" (attempt %ATTEMPT%/5)
+REM Keep partial downloads so retries and later runs can resume.
+curl.exe --fail --location --connect-timeout 30 --speed-limit 1024 --speed-time 60 --continue-at - --output "%PARTIAL%" "%DOWNLOAD_URL%"
+set "RESULT=%errorlevel%"
+REM A server that does not support resuming needs a fresh download.
+if "%RESULT%"=="33" if exist "%PARTIAL%" del /q "%PARTIAL%"
+if not "%RESULT%"=="0" goto download_retry
+if not exist "%PARTIAL%" goto download_retry
+for %%I in ("%PARTIAL%") do if %%~zI EQU 0 goto download_retry
 move /y "%PARTIAL%" "%DESTINATION%" >nul
-if errorlevel 1 goto download_failed
+if errorlevel 1 goto download_retry
 exit /b 0
 
-:download_failed
-echo ERROR: Download failed or returned an empty file: "%DESTINATION%" 1>&2
-if exist "%PARTIAL%" del /q "%PARTIAL%"
+:download_retry
+if %ATTEMPT% LSS 5 (
+    echo Download failed. Retrying in 5 seconds... 1>&2
+    powershell.exe -NoProfile -Command "Start-Sleep -Seconds 5"
+    goto download_attempt
+)
+echo ERROR: Download failed after 5 attempts: "%DESTINATION%". Progress is kept in .part. 1>&2
 exit /b 1

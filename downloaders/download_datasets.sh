@@ -14,28 +14,34 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 mkdir -p "${TRAFFIC_DIR}" "${IANA_DIR}"
 
-# A nonempty final file is considered complete. Failed transfers only affect .part.
-partial_file=""
-trap 'if [[ -n "$partial_file" ]]; then rm -f -- "$partial_file"; fi' EXIT
-
 download() {
   local url="$1" destination="$2"
   if [[ -s "$destination" ]]; then
     echo "Already exists: $destination"
     return 0
   fi
-  partial_file="${destination}.part"
-  echo "Downloading: $destination"
-  if curl --fail --location --retry 3 --connect-timeout 30 --speed-limit 1 --speed-time 120 \
-      --output "$partial_file" "$url" && [[ -s "$partial_file" ]]; then
-    if mv -f -- "$partial_file" "$destination"; then
-      partial_file=""
-      return 0
+  local partial_file="${destination}.part" attempt result
+  # Keep partial downloads so retries and later runs can resume.
+  for attempt in {1..5}; do
+    echo "Downloading: $destination (attempt $attempt/5)"
+    if curl --fail --location --connect-timeout 30 --speed-limit 1024 --speed-time 60 \
+        --continue-at - --output "$partial_file" "$url"; then
+      if [[ -s "$partial_file" ]] && mv -f -- "$partial_file" "$destination"; then
+        return 0
+      fi
+    else
+      result=$?
+      # A server that does not support resuming needs a fresh download.
+      if (( result == 33 )); then
+        rm -f -- "$partial_file"
+      fi
     fi
-  fi
-  echo "ERROR: Download failed or returned an empty file: $destination" >&2
-  rm -f -- "$partial_file"
-  partial_file=""
+    if (( attempt < 5 )); then
+      echo "Download failed. Retrying in 5 seconds..." >&2
+      sleep 5
+    fi
+  done
+  echo "ERROR: Download failed after 5 attempts: $destination. Progress is kept in .part." >&2
   return 1
 }
 
