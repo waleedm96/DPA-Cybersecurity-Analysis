@@ -61,6 +61,7 @@ Open [JupyterLab](http://127.0.0.1:8888/lab?token=sentinel-local).
 **Option 2: Run the below mentioned command and type the token manually**
  
  `http://127.0.0.1:8888/lab`
+
 Enter the below token after opening the link  
 ```text
 sentinel-local
