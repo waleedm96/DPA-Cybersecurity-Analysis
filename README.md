@@ -87,6 +87,8 @@ DOWNLOAD_DATA = True
 ```
 This downloads all ten original traffic CSVs and IANA. The original traffic files need about 6.89 GB, plus space for Parquet and temporary files. Download time depends on the connection almost 30-40 mins. Interrupted downloads are retried and resumed when the server supports it and it using the code present in the `downloaders` folder.
 
+`There are separate bash and powerShell script to download the directly also they are present in downloaders folder`
+
 
 
 **Option3: Full datasets already downloaded:**
