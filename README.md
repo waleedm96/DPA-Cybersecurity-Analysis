@@ -54,11 +54,13 @@ Wait for the build to finish. Docker provides Python, Spark 4.2.0, Jupyter and t
 
 ## 4. Open Jupyter via two options available
 
-#Option 1: directly run the below command to go directly to container
+**Option 1: directly run the below command to go directly to container**
+
 Open [JupyterLab](http://127.0.0.1:8888/lab?token=sentinel-local).
 
-option 2: Run the below mentioned command and type the token manually
+**Option 2: Run the below mentioned command and type the token manually**
  `http://127.0.0.1:8888/lab`
+Enter the below token after opening the link  
 ```text
 sentinel-local
 ```
