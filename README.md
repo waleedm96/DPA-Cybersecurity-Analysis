@@ -23,6 +23,7 @@ We are providing the terminal commands below they work both in Windows PowerShel
 ## 1. Create a folder
 First we will open the Powershell or Linux terminal then we will run the below commands
 ```sh
+
 #step 1 go to desired location For Example (cd 'C:\Users\Waleed\Desktop\Data Processing')
 cd 'enter your desired locations'
 
