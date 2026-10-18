@@ -17,9 +17,11 @@ We use Spark to clean network traffic data, join it with IANA service names and 
 First we will open the Powershell or Linux terminal and go to location where I want to save the project for example `(cd 'C:\Users\PC\Desktop\Data Processing')` then we will run the below commands
 ```sh
 #step 1 go to desired location
-cd 'your-location as show above'
+cd 'your location as show above'
+
 #step 2 Create Directory
 mkdir DPA-Project
+
 #step 3 Go in the Directory
 cd DPA-Project
 ```
@@ -30,6 +32,7 @@ cd DPA-Project
 ```sh
 #step 1 Clone the repository
 git clone https://github.com/waleedm96/DPA-Cybersecurity-Analysis.git
+
 #step 2 move into the repository
 cd DPA-Cybersecurity-Analysis
 ```
@@ -43,6 +46,7 @@ cd DPA-Cybersecurity-Analysis
 #Step 1: build the container as we are runing it the first time
 docker compose up --build -d
 ```
+
 Wait for the build to finish. Docker provides Python, Spark 4.2.0, Jupyter and the required libraries. It will take sometime to complete
 
 
