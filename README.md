@@ -14,10 +14,10 @@ We use Spark to clean network traffic data, join it with IANA service names and 
 # Step by Step Process to Run Our Code
 
 ## 1. Create a folder
-First we will open the Powershell or Linux terminal and go to location where I want to save the project for example `(cd 'C:\Users\PC\Desktop\Data Processing')` then we will run the below commands
+First we will open the Powershell or Linux terminal then we will run the below commands
 ```sh
-#step 1 go to desired location
-cd 'your location as show above'
+#step 1 go to desired location For Example (cd 'C:\Users\Waleed\Desktop\Data Processing')
+cd 'enter your desired locations'
 
 #step 2 Create Directory
 mkdir DPA-Project

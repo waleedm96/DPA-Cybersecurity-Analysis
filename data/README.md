@@ -12,6 +12,7 @@ Each traffic file keeps their original columns. Rows were selected from all ten 
 
 
 **Subset 2**
+
 Subset 2 contains **service and Ports CSV**, an unchanged copy of the full IANA dataset (**14,536 records**).
 
 
@@ -26,14 +27,14 @@ Set `USE_SUBSET = False` and `DOWNLOAD_DATA = True` in the notebook, then restar
 python downloaders/download_data.py
 ```
 
-The script downloads original Network Traffic and IANA Dataset. The original traffic CSVs need about 7 GB, plus space for generated tables.
+The script downloads original Network Traffic and IANA Dataset. The original Network Traffic CSVs and IANA CSv need about 7 GB, plus space for generated tables.
 
 Inside the running project container, use `docker compose exec jupyter python downloaders/download_data.py`. 
 To also download and extract the optional improved release, set `DOWNLOAD_IMPROVED = True` in that file before running it.
 
 
 
-## Sources and licences
+## Sources and Licences
 
 - CSE-CIC-IDS2018: [dataset and licence](https://www.unb.ca/cic/datasets/ids-2018.html), [AWS dataset page](https://registry.opendata.aws/cse-cic-ids2018/). Cite the dataset and include the AWS link when redistributing it.
 - IANA: [service and port CSV](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv), [licensing terms](https://www.iana.org/help/licensing-terms).
