@@ -1,6 +1,6 @@
 # Data & Licencing
 
-## Included subset of the data 
+## Subset 
 
 Use `USE_SUBSET = True` in the notebook. So no need to download the data as subset is already present.
 
@@ -12,7 +12,7 @@ Each traffic file keeps their original columns. Rows were selected from all ten 
 
 
 **Subset 2**
-Subset 2 contains **service and Ports CSV **, an unchanged copy of the full IANA dataset (**14,536 records**).
+Subset 2 contains **service and Ports CSV**, an unchanged copy of the full IANA dataset (**14,536 records**).
 
 
 
