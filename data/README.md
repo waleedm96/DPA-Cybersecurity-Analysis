@@ -16,7 +16,9 @@ Set `USE_SUBSET = False` and `DOWNLOAD_DATA = True` in the notebook, then restar
 python downloaders/download_data.py
 ```
 
-The script downloads original traffic and IANA. Existing nonempty files are skipped. The original traffic CSVs need about 7 GB, plus space for generated tables.
+The script downloads original traffic and IANA. Existing nonempty files are skipped. Interrupted files stay as `.part`; the script retries five times and resumes the saved download. Rerun the same command to continue after a connection problem. It uses `curl`, which is included in the project Docker image and current Windows installations. The original traffic CSVs need about 7 GB, plus space for generated tables.
+
+Inside the running project container, use `docker compose exec jupyter python downloaders/download_data.py`. To also download and extract the optional improved release, set `DOWNLOAD_IMPROVED = True` in that file before running it.
 
 ## Folders
 
