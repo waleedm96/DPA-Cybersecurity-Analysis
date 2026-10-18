@@ -68,7 +68,6 @@ sentinel-local
 ```
 
 
-
 ## 5. Choose the dataset and parameters how you want to run the code
 
 These settings are present in the first cell of our jupiter code
